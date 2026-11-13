@@ -1,26 +1,46 @@
 import { useId } from 'react';
-import { DangerButton, GhostButton } from './Button';
-import { Modal } from './Modal';
+import { useI18n } from '../i18n/locale';
+import { Button } from './Button';
+import { Icon } from './Icon';
+import { DialogFrame, ModalActions } from './Modal';
+import { TEXT_ROLE } from './text-class';
 
 interface ConfirmDialogProps {
   open: boolean;
   title: string;
+  /** Should name the affected object. */
   message: string;
   confirmLabel: string;
   onConfirm: () => void;
   onClose: () => void;
 }
 
-/** Destructive confirmation; focus starts on Cancel so Enter never deletes by accident. */
+/** Irreversible-delete confirmation; focus starts on Cancel so Enter never deletes by accident. */
 export function ConfirmDialog({ open, title, message, confirmLabel, onConfirm, onClose }: ConfirmDialogProps) {
+  const { text } = useI18n();
   const titleId = useId();
+  const messageId = useId();
   return (
-    <Modal open={open} title={title} titleId={titleId} onClose={onClose}>
-      <p className="text-sm leading-relaxed font-light text-fg-muted">{message}</p>
-      <div className="flex justify-end gap-2 pt-6">
-        <GhostButton data-autofocus onClick={onClose}>取消</GhostButton>
-        <DangerButton onClick={onConfirm}>{confirmLabel}</DangerButton>
+    <DialogFrame
+      open={open}
+      onClose={onClose}
+      labelledBy={titleId}
+      describedBy={messageId}
+      className="w-[min(25rem,calc(100vw-2rem))] p-6"
+    >
+      <div className="mb-4 flex gap-4">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-danger-soft text-danger">
+          <Icon name="alertTriangle" className="size-5" />
+        </div>
+        <div className="min-w-0 space-y-1.5 pt-1">
+          <h2 id={titleId} className={TEXT_ROLE.dialogTitle}>{title}</h2>
+          <p id={messageId} className={`${TEXT_ROLE.body} break-words`}>{message}</p>
+        </div>
       </div>
-    </Modal>
+      <ModalActions>
+        <Button size="lg" data-autofocus onClick={onClose}>{text['common.cancel']}</Button>
+        <Button tone="danger" size="lg" onClick={onConfirm}>{confirmLabel}</Button>
+      </ModalActions>
+    </DialogFrame>
   );
 }

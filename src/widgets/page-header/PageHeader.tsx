@@ -1,31 +1,17 @@
-import { SearchField } from '../../features/search/SearchField';
-import { PrimaryButton } from '../../shared/ui/Button';
-import { Icon } from '../../shared/ui/Icon';
+import { TEXT_ROLE } from '../../shared/ui/text-class';
 
 interface PageHeaderProps {
   title: string;
+  /** Short context shown inline after the title, e.g. the item count. */
   subtitle: string;
-  query: string;
-  onQueryChange: (query: string) => void;
-  /** Enter in the search box; typically opens the top match. */
-  onQuerySubmit: () => void;
-  onAdd: () => void;
 }
 
-export function PageHeader({ title, subtitle, query, onQueryChange, onQuerySubmit, onAdd }: PageHeaderProps) {
+/** Title with inline meta. */
+export function PageHeader({ title, subtitle }: PageHeaderProps) {
   return (
-    <header className="flex flex-col justify-between gap-4 border-b border-line pb-10 sm:flex-row sm:items-center">
-      <div className="min-w-0">
-        <h1 className="text-2xl font-medium tracking-tight text-fg">{title}</h1>
-        <p className="mt-1 truncate text-sm font-light text-fg-muted">{subtitle}</p>
-      </div>
-      <div className="flex items-center gap-3">
-        <SearchField value={query} onChange={onQueryChange} onSubmit={onQuerySubmit} />
-        <PrimaryButton onClick={onAdd}>
-          <Icon name="plus" />
-          <span>收录</span>
-        </PrimaryButton>
-      </div>
+    <header className="flex min-w-0 items-baseline gap-3 pt-6 pb-5 md:pt-8 md:pb-6">
+      <h1 className={`shrink-0 ${TEXT_ROLE.pageTitle}`}>{title}</h1>
+      <p className={`truncate ${TEXT_ROLE.body}`}>{subtitle}</p>
     </header>
   );
 }

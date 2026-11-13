@@ -1,21 +1,26 @@
 import { useCallback, useState } from 'react';
 import { diagramClient, diagramMatchesQuery, EMPTY_DIAGRAM_DRAFT, toDiagramDraft, type Diagram } from '../../entities/diagram/diagram';
-import { DiagramCard } from '../../entities/diagram/DiagramCard';
+import { DiagramCard, DiagramCardSkeleton } from '../../entities/diagram/DiagramCard';
 import { DiagramFormModal } from '../../features/diagram-form/DiagramFormModal';
 import { DiagramPreviewModal } from '../../features/diagram-preview/DiagramPreviewModal';
+import { usePageAddAction } from '../../features/add-action/add-action-context';
+import { usePageSearch } from '../../features/search/search-context';
+import { useI18n } from '../../shared/i18n/locale';
 import { useCollectionWorkspace } from '../../shared/lib/useCollectionWorkspace';
 import { ConfirmDialog } from '../../shared/ui/ConfirmDialog';
 import { CollectionGrid } from '../../widgets/collection-grid/CollectionGrid';
 import { PageHeader } from '../../widgets/page-header/PageHeader';
 
 export function DiagramPage() {
+  const { text } = useI18n();
   const { items: diagrams, status, openCreator, openEditor, askRemoval, editor, removal } = useCollectionWorkspace({
     client: diagramClient,
     emptyDraft: EMPTY_DIAGRAM_DRAFT,
     toDraft: toDiagramDraft,
     moduleName: 'Diagram',
   });
-  const [query, setQuery] = useState('');
+  const query = usePageSearch(previewTopMatch);
+  usePageAddAction(openCreator);
   const [preview, setPreview] = useState<{ open: boolean; target: Diagram | null }>({ open: false, target: null });
 
   const visibleDiagrams = diagrams.filter(diagram => diagramMatchesQuery(diagram, query));
@@ -30,32 +35,26 @@ export function DiagramPage() {
   return (
     <>
       <PageHeader
-        title="架构图"
-        subtitle={`${diagrams.length} 张架构图，点击图纸可全屏查看`}
-        query={query}
-        onQueryChange={setQuery}
-        onQuerySubmit={previewTopMatch}
-        onAdd={() => openCreator()}
+        title={text['diagram.pageTitle']}
+        subtitle={text['diagram.subtitle'](diagrams.length)}
       />
 
-      <div className="pt-8">
-        <CollectionGrid
-          status={status}
-          totalCount={diagrams.length}
-          visibleItems={visibleDiagrams}
-          noun="架构图"
-          layoutClassName="grid-cols-1 gap-6 md:grid-cols-2"
-          skeletonClassName="h-80"
-          skeletonCount={4}
-          renderItem={diagram => (
-            <DiagramCard diagram={diagram} onPreview={openPreview} onEdit={openEditor} onRemove={askRemoval} />
-          )}
-        />
-      </div>
+      <CollectionGrid
+        status={status}
+        totalCount={diagrams.length}
+        visibleItems={visibleDiagrams}
+        noun={text['diagram.noun']}
+        layoutClassName="grid-cols-1 gap-x-5 gap-y-8 md:grid-cols-2 xl:grid-cols-3"
+        skeleton={<DiagramCardSkeleton />}
+        skeletonCount={4}
+        renderItem={diagram => (
+          <DiagramCard diagram={diagram} onPreview={openPreview} onEdit={openEditor} onRemove={askRemoval} />
+        )}
+      />
 
       <DiagramFormModal
         open={editor.open}
-        heading={editor.target ? '编辑架构图' : '收录架构图'}
+        heading={editor.target ? text['diagram.editHeading'] : text['diagram.createHeading']}
         initialDraft={editor.initialDraft}
         onSubmit={editor.save}
         onClose={editor.close}
@@ -63,9 +62,9 @@ export function DiagramPage() {
       <DiagramPreviewModal open={preview.open} diagram={preview.target} onClose={closePreview} />
       <ConfirmDialog
         open={removal.open}
-        title="删除架构图"
-        message={`确定删除「${removal.target?.title ?? ''}」吗？此操作无法撤销。`}
-        confirmLabel="删除"
+        title={text['diagram.deleteHeading']}
+        message={text['common.confirmDelete'](removal.target?.title ?? '')}
+        confirmLabel={text['common.delete']}
         onConfirm={removal.confirm}
         onClose={removal.close}
       />

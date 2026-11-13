@@ -1,10 +1,10 @@
-import { useId } from 'react';
 import type { DiagramDraft } from '../../entities/diagram/diagram';
 import { DiagramImage } from '../../entities/diagram/DiagramImage';
+import { useI18n } from '../../shared/i18n/locale';
 import { useDraftForm } from '../../shared/lib/useDraftForm';
-import { GhostButton, PrimaryButton } from '../../shared/ui/Button';
-import { Modal } from '../../shared/ui/Modal';
-import { TextAreaField, TextField } from '../../shared/ui/TextField';
+import { Button, SubmitButton } from '../../shared/ui/Button';
+import { Modal, ModalActions } from '../../shared/ui/Modal';
+import { MonoTextField, TextAreaField, TextField } from '../../shared/ui/TextField';
 
 interface DiagramFormModalProps {
   open: boolean;
@@ -16,30 +16,30 @@ interface DiagramFormModalProps {
 }
 
 export function DiagramFormModal({ open, heading, initialDraft, onSubmit, onClose }: DiagramFormModalProps) {
+  const { text } = useI18n();
   const { draft, bindField, isSaving, submit } = useDraftForm(open, initialDraft, onSubmit);
-  const titleId = useId();
   const imageUrl = draft.imageUrl.trim();
 
   return (
-    <Modal open={open} title={heading} titleId={titleId} onClose={onClose}>
+    <Modal open={open} title={heading} onClose={onClose}>
       <form onSubmit={submit} className="space-y-4">
-        <TextField
-          label="SVG 图片链接"
+        <MonoTextField
+          label={text['diagram.imageUrl']}
           required
-          placeholder="https://example.com/arch.svg 或 /diagram/arch.svg"
+          placeholder={text['diagram.imageUrlPlaceholder']}
           {...bindField('imageUrl')}
         />
         {imageUrl && (
-          <div className="rounded-xl border border-line bg-diagram-canvas p-3">
-            <DiagramImage src={imageUrl} alt="预览" className="max-h-40 w-full object-contain" />
+          <div className="rounded-control border border-line bg-diagram-canvas p-3">
+            <DiagramImage src={imageUrl} alt={text['diagram.imagePreview']} className="max-h-40 w-full object-contain" />
           </div>
         )}
-        <TextField label="标题" required maxLength={80} placeholder="例如：订单系统架构" {...bindField('title')} />
-        <TextAreaField label="描述（可选）" rows={4} maxLength={1000} placeholder="说明架构的核心思路与权衡…" {...bindField('description')} />
-        <div className="flex justify-end gap-2 pt-3">
-          <GhostButton onClick={onClose}>取消</GhostButton>
-          <PrimaryButton type="submit" disabled={isSaving}>{isSaving ? '保存中…' : '保存'}</PrimaryButton>
-        </div>
+        <TextField label={text['common.title']} required maxLength={80} placeholder={text['diagram.titlePlaceholder']} {...bindField('title')} />
+        <TextAreaField label={text['common.optionalDescription']} rows={4} maxLength={1000} placeholder={text['diagram.descriptionPlaceholder']} {...bindField('description')} />
+        <ModalActions>
+          <Button size="lg" onClick={onClose}>{text['common.cancel']}</Button>
+          <SubmitButton pending={isSaving}>{text['common.save']}</SubmitButton>
+        </ModalActions>
       </form>
     </Modal>
   );

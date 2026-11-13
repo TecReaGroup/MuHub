@@ -1,30 +1,32 @@
-interface PillTabsProps {
+export interface SegmentedOption {
+  value: string;
   label: string;
-  options: string[];
+}
+
+interface SegmentedControlProps {
+  label: string;
+  options: SegmentedOption[];
   value: string;
   onChange: (option: string) => void;
 }
 
-export function PillTabs({ label, options, value, onChange }: PillTabsProps) {
+/** Mutually exclusive choice on a sunken track; the selected segment rises to the surface. */
+export function SegmentedControl({ label, options, value, onChange }: SegmentedControlProps) {
   return (
-    <div role="tablist" aria-label={label} className="-mx-1 flex items-center gap-2 overflow-x-auto px-1 py-1">
-      {options.map(option => {
-        const isActive = option === value;
-        return (
-          <button
-            key={option}
-            type="button"
-            role="tab"
-            aria-selected={isActive}
-            onClick={() => onChange(option)}
-            className={`rounded-full px-3.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors duration-150 ${
-              isActive ? 'bg-accent text-on-accent' : 'text-fg-muted hover:bg-hover hover:text-fg'
-            }`}
-          >
-            {option}
-          </button>
-        );
-      })}
+    // Wraps instead of scrolling sideways when there are many options.
+    <div role="tablist" aria-label={label} className="inline-flex max-w-full flex-wrap gap-0.5 rounded-control bg-surface-sunken p-1">
+      {options.map(option => (
+        <button
+          key={option.value}
+          type="button"
+          role="tab"
+          aria-selected={option.value === value}
+          onClick={() => onChange(option.value)}
+          className="h-7 rounded-tight px-3 text-xs font-medium whitespace-nowrap text-fg-muted transition-[color,background-color,box-shadow] hover:text-fg aria-selected:bg-surface aria-selected:text-fg aria-selected:shadow-rest"
+        >
+          {option.label}
+        </button>
+      ))}
     </div>
   );
 }

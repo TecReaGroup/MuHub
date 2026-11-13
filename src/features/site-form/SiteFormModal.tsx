@@ -1,9 +1,10 @@
 import { useId } from 'react';
 import { siteHostname, type SiteDraft } from '../../entities/site/site';
+import { useI18n } from '../../shared/i18n/locale';
 import { useDraftForm } from '../../shared/lib/useDraftForm';
-import { GhostButton, PrimaryButton } from '../../shared/ui/Button';
-import { Modal } from '../../shared/ui/Modal';
-import { TextAreaField, TextField } from '../../shared/ui/TextField';
+import { Button, SubmitButton } from '../../shared/ui/Button';
+import { Modal, ModalActions } from '../../shared/ui/Modal';
+import { MonoTextField, TextAreaField, TextField } from '../../shared/ui/TextField';
 
 interface SiteFormModalProps {
   open: boolean;
@@ -22,8 +23,8 @@ function suggestTitle(url: string): string {
 }
 
 export function SiteFormModal({ open, heading, initialDraft, categories, onSubmit, onClose }: SiteFormModalProps) {
+  const { text } = useI18n();
   const { draft, setDraft, bindField, isSaving, submit } = useDraftForm(open, initialDraft, onSubmit);
-  const titleId = useId();
   const categoryListId = useId();
 
   function fillTitleFromUrl() {
@@ -32,26 +33,26 @@ export function SiteFormModal({ open, heading, initialDraft, categories, onSubmi
   }
 
   return (
-    <Modal open={open} title={heading} titleId={titleId} onClose={onClose}>
+    <Modal open={open} title={heading} onClose={onClose}>
       <form onSubmit={submit} className="space-y-4">
-        <TextField label="网址" type="url" required placeholder="https://linear.app" onBlur={fillTitleFromUrl} {...bindField('url')} />
-        <TextField label="标题" required maxLength={60} placeholder="例如：Linear" {...bindField('title')} />
+        <MonoTextField label={text['site.url']} type="url" required placeholder="https://linear.app" onBlur={fillTitleFromUrl} {...bindField('url')} />
+        <TextField label={text['common.title']} required maxLength={60} placeholder={text['site.titlePlaceholder']} {...bindField('title')} />
         <TextField
-          label="分类"
+          label={text['site.category']}
           required
           maxLength={20}
           list={categoryListId}
-          placeholder="选择已有分类或输入新分类"
+          placeholder={text['site.categoryPlaceholder']}
           {...bindField('category')}
         />
         <datalist id={categoryListId}>
           {categories.map(category => <option key={category} value={category} />)}
         </datalist>
-        <TextAreaField label="描述（可选）" rows={2} maxLength={200} placeholder="一句话描述它的价值…" {...bindField('description')} />
-        <div className="flex justify-end gap-2 pt-3">
-          <GhostButton onClick={onClose}>取消</GhostButton>
-          <PrimaryButton type="submit" disabled={isSaving}>{isSaving ? '保存中…' : '保存'}</PrimaryButton>
-        </div>
+        <TextAreaField label={text['common.optionalDescription']} rows={2} maxLength={200} placeholder={text['site.descriptionPlaceholder']} {...bindField('description')} />
+        <ModalActions>
+          <Button size="lg" onClick={onClose}>{text['common.cancel']}</Button>
+          <SubmitButton pending={isSaving}>{text['common.save']}</SubmitButton>
+        </ModalActions>
       </form>
     </Modal>
   );

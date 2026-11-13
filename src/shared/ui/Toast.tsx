@@ -9,23 +9,33 @@ const ToastContext = createContext<ShowToast | null>(null);
 /** Single app-wide toast slot; a new message replaces the current one. */
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState({ message: '', visible: false });
+  const toastRef = useRef<HTMLDivElement>(null);
   const hideTimerRef = useRef<number>();
 
   const showToast = useCallback<ShowToast>(message => {
+    // A manual popover lives in the top layer; re-showing it moves it above any open modal <dialog>.
+    const toastElement = toastRef.current!;
+    if (toastElement.matches(':popover-open')) toastElement.hidePopover();
+    toastElement.showPopover();
     window.clearTimeout(hideTimerRef.current);
     setToast({ message, visible: true });
     hideTimerRef.current = window.setTimeout(() => setToast(current => ({ ...current, visible: false })), TOAST_DURATION_MS);
   }, []);
 
-  useEffect(() => () => window.clearTimeout(hideTimerRef.current), []);
+  useEffect(() => {
+    // Set imperatively: React 18 does not know the `popover` attribute.
+    toastRef.current!.setAttribute('popover', 'manual');
+    return () => window.clearTimeout(hideTimerRef.current);
+  }, []);
 
   return (
     <ToastContext.Provider value={showToast}>
       {children}
       <div
+        ref={toastRef}
         role="status"
         aria-live="polite"
-        className={`pointer-events-none fixed right-6 bottom-6 z-60 rounded-xl bg-accent px-4 py-2.5 text-xs font-medium text-on-accent shadow-lg transition-all duration-300 ease-out-expo ${toast.visible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+        className={`pointer-events-none inset-auto right-6 bottom-6 m-0 max-w-[min(24rem,calc(100vw-3rem))] rounded-control border-0 bg-accent px-4 py-2.5 text-xs font-medium text-on-accent shadow-overlay transition-[opacity,translate] duration-medium starting:translate-y-2 starting:opacity-0 ${toast.visible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'}`}
       >
         {toast.message}
       </div>

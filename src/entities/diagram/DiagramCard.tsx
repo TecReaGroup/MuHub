@@ -1,8 +1,13 @@
-import { Card } from '../../shared/ui/Card';
+import { useI18n } from '../../shared/i18n/locale';
 import { Icon } from '../../shared/ui/Icon';
-import { ItemActions } from '../../shared/ui/ItemActions';
+import { HOVER_REVEAL_CLASS, ItemActions } from '../../shared/ui/ItemActions';
+import { SkeletonBar } from '../../shared/ui/Placeholder';
+import { TEXT_ROLE } from '../../shared/ui/text-class';
 import type { Diagram } from './diagram';
 import { DiagramImage } from './DiagramImage';
+
+// Media tile: the framed preview is the card; title and actions sit below it on the canvas.
+const PREVIEW_FRAME_CLASS = 'relative block w-full overflow-hidden rounded-card border border-line bg-diagram-canvas p-5';
 
 interface DiagramCardProps {
   diagram: Diagram;
@@ -12,39 +17,55 @@ interface DiagramCardProps {
 }
 
 export function DiagramCard({ diagram, onPreview, onEdit, onRemove }: DiagramCardProps) {
+  const { text } = useI18n();
   return (
-    <Card className="flex flex-col">
+    <article className="group flex flex-col gap-3">
       <button
         type="button"
         onClick={() => onPreview(diagram)}
-        aria-label={`全屏查看 ${diagram.title}`}
-        className="relative block w-full cursor-zoom-in border-b border-line bg-diagram-canvas p-5 focus-visible:-outline-offset-2"
+        aria-label={text['diagram.fullscreenItem'](diagram.title)}
+        className={`${PREVIEW_FRAME_CLASS} cursor-zoom-in transition-[border-color,box-shadow] duration-medium hover:border-line-strong hover:shadow-hover`}
       >
         <DiagramImage
           src={diagram.imageUrl}
           alt={diagram.title}
-          className="h-56 w-full object-contain transition-transform duration-500 ease-out-expo group-hover:scale-[1.01]"
+          className="h-56 w-full object-contain transition-transform duration-long group-hover:scale-[1.02]"
         />
-        <span className="absolute right-4 bottom-4 flex items-center gap-1.5 rounded-full border border-line bg-surface/90 px-3 py-1.5 text-[11px] font-medium text-fg-muted opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100">
+        <span className={`absolute right-3 bottom-3 flex items-center gap-1 rounded-tight bg-accent/85 px-2 py-1 text-caption font-medium text-on-accent backdrop-blur-sm ${HOVER_REVEAL_CLASS}`}>
           <Icon name="expand" className="size-3.5" />
-          全屏查看
+          {text['diagram.fullscreen']}
         </span>
       </button>
 
-      <div className="flex flex-1 items-start justify-between gap-4 p-6">
-        <div className="min-w-0 space-y-2">
-          <h3 className="text-base font-medium text-fg">{diagram.title}</h3>
+      <div className="flex items-start gap-3 px-0.5">
+        <div className="min-w-0 flex-1 space-y-1">
+          <h3 className={TEXT_ROLE.cardTitle}>{diagram.title}</h3>
           {diagram.description && (
-            <p className="line-clamp-3 text-sm leading-relaxed font-light text-fg-muted">{diagram.description}</p>
+            <p className="line-clamp-2 text-sm leading-5 break-words text-fg-muted">{diagram.description}</p>
           )}
         </div>
         <ItemActions
           itemTitle={diagram.title}
           onEdit={() => onEdit(diagram)}
           onRemove={() => onRemove(diagram)}
-          className="-mr-2 shrink-0"
+          className="-mt-1 -mr-1.5"
         />
       </div>
-    </Card>
+    </article>
+  );
+}
+
+/** Same frame and preview height as `DiagramCard`, so the swap causes no layout shift. */
+export function DiagramCardSkeleton() {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className={PREVIEW_FRAME_CLASS}>
+        <SkeletonBar className="h-56 w-full" />
+      </div>
+      <div className="space-y-2 px-0.5">
+        <SkeletonBar className="h-4 w-2/5" />
+        <SkeletonBar className="h-3 w-3/4" />
+      </div>
+    </div>
   );
 }

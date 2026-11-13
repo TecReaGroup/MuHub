@@ -4,8 +4,8 @@ import { SitePage } from '../pages/site/SitePage';
 import type { SidebarRoute } from '../widgets/sidebar/Sidebar';
 
 export const HUB_ROUTES = [
-  { id: 'site', label: '导航', icon: 'globe', Page: SitePage },
-  { id: 'diagram', label: '架构图', icon: 'layers', Page: DiagramPage },
+  { id: 'site', labelKey: 'site.pageTitle', icon: 'globe', Page: SitePage },
+  { id: 'diagram', labelKey: 'diagram.pageTitle', icon: 'layers', Page: DiagramPage },
 ] as const satisfies readonly (SidebarRoute & { Page: ComponentType })[];
 
 export type HubRoute = (typeof HUB_ROUTES)[number];

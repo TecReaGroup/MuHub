@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { useI18n } from '../i18n/locale';
 import { useToast } from '../ui/Toast';
 import type { CollectionClient } from './collection-client';
 import { log, serializeError } from './logger';
@@ -24,10 +25,6 @@ interface RemovalState<Item> {
   target: Item | null;
 }
 
-function failureReason(error: unknown): string {
-  return error instanceof Error ? error.message : '未知错误';
-}
-
 /**
  * The full create/edit/remove workflow for one collection: dialog state, persistence,
  * success/failure toasts and error logging. Pages only render.
@@ -37,6 +34,7 @@ export function useCollectionWorkspace<Item extends { id: string; title: string 
 ) {
   const { items, status, addItem, editItem, removeItem } = useRemoteCollection(client, moduleName);
   const showToast = useToast();
+  const { text } = useI18n();
   const [editor, setEditor] = useState<EditorState<Item, Draft>>({ open: false, target: null, initialDraft: emptyDraft });
   const [removal, setRemoval] = useState<RemovalState<Item>>({ open: false, target: null });
 
@@ -50,15 +48,19 @@ export function useCollectionWorkspace<Item extends { id: string; title: string 
   const askRemoval = useCallback((item: Item) => setRemoval({ open: true, target: item }), []);
   const closeRemoval = useCallback(() => setRemoval(current => ({ ...current, open: false })), []);
 
+  function failureReason(error: unknown): string {
+    return error instanceof Error ? error.message : text['common.unknownError'];
+  }
+
   async function saveDraft(draft: Draft) {
     try {
       if (editor.target) await editItem(editor.target.id, draft);
       else await addItem(draft);
-      showToast(`已保存「${draft.title}」`);
+      showToast(text['toast.saved'](draft.title));
       closeEditor();
     } catch (error) {
       log('error', moduleName, 'Failed to save item', serializeError(error));
-      showToast(`保存失败：${failureReason(error)}`);
+      showToast(text['toast.saveFailed'](failureReason(error)));
     }
   }
 
@@ -68,10 +70,10 @@ export function useCollectionWorkspace<Item extends { id: string; title: string 
     closeRemoval();
     try {
       await removeItem(target.id);
-      showToast(`已删除「${target.title}」`);
+      showToast(text['toast.deleted'](target.title));
     } catch (error) {
       log('error', moduleName, 'Failed to delete item', serializeError(error));
-      showToast(`删除失败：${failureReason(error)}`);
+      showToast(text['toast.deleteFailed'](failureReason(error)));
     }
   }
 

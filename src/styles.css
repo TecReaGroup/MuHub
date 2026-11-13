@@ -1,62 +1,44 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 /*
- * Semantic design tokens. Components use only these (bg-surface, text-fg, border-line…);
- * raw palette colors stay here so light/dark is defined exactly once.
+ * Semantic design tokens. Components use only these roles (bg-surface, text-fg, shadow-rest…);
+ * raw palette values live only here.
+ * Soft roles are backgrounds; the matching strong role is the text/icon on top of them.
  */
 :root {
-  --canvas: #fafafa;
+  /* Warm paper neutrals; the accent is a warm espresso, never pure black. */
+  --canvas: #f7f6f3;
   --surface: #ffffff;
-  --surface-muted: rgb(244 244 245 / 0.8);
-  --surface-raised: #ffffff;
-  --surface-sunken: #fafafa;
-  --chrome: rgb(255 255 255 / 0.6);
-  --hover: #f4f4f5;
-  --fg: #18181b;
-  --fg-muted: #71717a;
-  --fg-subtle: #a1a1aa;
-  --line: rgb(228 228 231 / 0.7);
-  --line-strong: #a1a1aa;
-  --accent: #18181b;
-  --accent-hover: #27272a;
+  --surface-sunken: #eeece8;
+  --hover: rgb(41 37 33 / 0.05);
+  --fg: #26231f;
+  --fg-muted: #75706a;
+  --fg-subtle: #a8a39c;
+  --line: #e9e6e1;
+  --line-strong: #d6d2cb;
+  --accent: #2a2522;
+  --accent-hover: #433c37;
+  --accent-soft: rgb(42 37 34 / 0.08);
   --on-accent: #ffffff;
+  --success: #15803d;
+  --success-soft: rgb(22 163 74 / 0.1);
   --danger: #dc2626;
-  --danger-hover: #ef4444;
-  --ring: rgb(24 24 27 / 0.4);
-  --overlay: rgb(9 9 11 / 0.3);
+  --danger-hover: #b91c1c;
+  --danger-soft: rgb(220 38 38 / 0.08);
+  --ring: rgb(42 37 34 / 0.4);
+  --overlay: rgb(30 26 23 / 0.32);
+  --scrollbar-thumb: rgb(120 113 105 / 0.35);
+  --elevation-rest: 0 1px 2px rgb(41 37 33 / 0.04);
+  --elevation-hover: 0 8px 20px -6px rgb(41 37 33 / 0.14), 0 2px 4px -2px rgb(41 37 33 / 0.06);
+  --elevation-overlay: 0 24px 48px -12px rgb(41 37 33 / 0.22), 0 4px 12px -4px rgb(41 37 33 / 0.08);
   /* Diagrams always sit on white so SVGs render with their authored palette. */
   --diagram-canvas: #ffffff;
-}
-
-.dark {
-  --canvas: #09090b;
-  --surface: #121215;
-  --surface-muted: rgb(24 24 27 / 0.8);
-  --surface-raised: #27272a;
-  --surface-sunken: #09090b;
-  --chrome: rgb(9 9 11 / 0.6);
-  --hover: #27272a;
-  --fg: #f4f4f5;
-  --fg-muted: #a1a1aa;
-  --fg-subtle: #71717a;
-  --line: rgb(39 39 42 / 0.7);
-  --line-strong: #52525b;
-  --accent: #f4f4f5;
-  --accent-hover: #ffffff;
-  --on-accent: #18181b;
-  --ring: rgb(244 244 245 / 0.4);
-  --overlay: rgb(0 0 0 / 0.6);
 }
 
 @theme inline {
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
-  --color-surface-muted: var(--surface-muted);
-  --color-surface-raised: var(--surface-raised);
   --color-surface-sunken: var(--surface-sunken);
-  --color-chrome: var(--chrome);
   --color-hover: var(--hover);
   --color-fg: var(--fg);
   --color-fg-muted: var(--fg-muted);
@@ -65,32 +47,81 @@
   --color-line-strong: var(--line-strong);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
   --color-on-accent: var(--on-accent);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
   --color-danger: var(--danger);
   --color-danger-hover: var(--danger-hover);
+  --color-danger-soft: var(--danger-soft);
   --color-ring: var(--ring);
   --color-overlay: var(--overlay);
   --color-diagram-canvas: var(--diagram-canvas);
+
+  --shadow-rest: var(--elevation-rest);
+  --shadow-hover: var(--elevation-hover);
+  --shadow-overlay: var(--elevation-overlay);
 }
 
 @theme {
   --font-sans: "Inter", "Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif;
-  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --animate-fade-up: fade-up 0.4s var(--ease-out-expo) both;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  @keyframes fade-up {
+  --text-caption: 0.6875rem;
+  --text-caption--line-height: 1rem;
+
+  /* Nested radii step down one tier per level so inner and outer edges stay concentric. */
+  --radius-tight: 0.375rem;
+  --radius-control: 0.625rem;
+  --radius-card: 1rem;
+  --radius-dialog: 1.25rem;
+
+  /* short: color/opacity, medium: transform, long: large content fades. */
+  --transition-duration-short: 150ms;
+  --transition-duration-medium: 250ms;
+  --transition-duration-long: 400ms;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --default-transition-duration: 150ms;
+  --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-fade-in: fade-in 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  @keyframes fade-in {
     from {
       opacity: 0;
-      transform: translateY(8px);
+      transform: translateY(4px);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
+      transform: none;
     }
   }
 }
 
+/* Every local scroll area: thin, trackless, thumb only while hovered or focused within. */
+@utility scrollbar-subtle {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+
+  &:hover,
+  &:focus-within {
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+}
+
 @layer base {
+  html {
+    /* Reserved gutter keeps content still when switching between short and long pages. */
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+
+  /* Native modal dialogs do not lock page scroll on their own. */
+  html:has(dialog[open]) {
+    overflow: hidden;
+  }
+
   body {
     min-width: 320px;
     background: var(--canvas);
@@ -98,10 +129,15 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    transition: background-color 300ms, color 300ms;
   }
 
-  /* One keyboard focus style everywhere; text fields signal focus with their border instead. */
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.01em;
+  }
+
+  /* One keyboard focus ring everywhere; text fields use the field focus style instead. */
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
@@ -121,24 +157,6 @@
     display: none;
   }
 
-  ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: rgb(161 161 170 / 0.3);
-    border-radius: 9999px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgb(161 161 170 / 0.5);
-  }
-
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -147,6 +165,48 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /*
+   * Native <dialog> enter/exit. Panel "pops" (opacity + small shift + scale);
+   * the backdrop only fades, since moving it would expose the page edge.
+   */
+  .modal-dialog {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+    transition-property: opacity, transform, overlay, display;
+    transition-duration: var(--transition-duration-medium);
+    transition-behavior: allow-discrete;
+  }
+
+  .modal-dialog[open] {
+    opacity: 1;
+    transform: none;
+  }
+
+  .modal-dialog::backdrop {
+    background-color: transparent;
+    backdrop-filter: blur(4px);
+    transition-property: background-color, overlay, display;
+    transition-duration: var(--transition-duration-medium);
+    transition-behavior: allow-discrete;
+  }
+
+  .modal-dialog[open]::backdrop {
+    background-color: var(--overlay);
+  }
+
+  @starting-style {
+    .modal-dialog[open] {
+      opacity: 0;
+      transform: translateY(6px) scale(0.98);
+    }
+
+    .modal-dialog[open]::backdrop {
+      background-color: transparent;
     }
   }
 }

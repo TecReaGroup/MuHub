@@ -1,26 +1,15 @@
-import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react';
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from 'react';
+import { iconControlClass, textControlClass, type ControlSize, type ControlTone } from './control-class';
+import { Icon } from './Icon';
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
-
-const SOLID_BUTTON_CLASS_NAME = 'inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl px-4 py-2 text-sm font-medium transition duration-200 active:scale-95 disabled:pointer-events-none disabled:opacity-50';
-const ICON_CONTROL_CLASS_NAME = 'inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-fg-muted transition-colors duration-150 hover:bg-hover hover:text-fg';
-
-export function PrimaryButton({ className = '', type = 'button', ...props }: ButtonProps) {
-  return <button type={type} className={`${SOLID_BUTTON_CLASS_NAME} bg-accent text-on-accent hover:bg-accent-hover ${className}`} {...props} />;
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  tone?: ControlTone;
+  size?: ControlSize;
 }
 
-export function DangerButton({ className = '', type = 'button', ...props }: ButtonProps) {
-  return <button type={type} className={`${SOLID_BUTTON_CLASS_NAME} bg-danger text-white hover:bg-danger-hover ${className}`} {...props} />;
-}
-
-export function GhostButton({ className = '', type = 'button', ...props }: ButtonProps) {
-  return (
-    <button
-      type={type}
-      className={`rounded-xl px-4 py-2 text-sm text-fg-muted transition-colors duration-150 hover:text-fg ${className}`}
-      {...props}
-    />
-  );
+/** `className` is for layout only; appearance comes from `tone` and `size`. */
+export function Button({ tone = 'secondary', size = 'md', className = '', type = 'button', ...props }: ButtonProps) {
+  return <button type={type} className={`${textControlClass(tone, size)} ${className}`} {...props} />;
 }
 
 interface IconButtonProps extends ButtonProps {
@@ -28,25 +17,49 @@ interface IconButtonProps extends ButtonProps {
   label: string;
 }
 
-export function IconButton({ label, className = '', type = 'button', ...props }: IconButtonProps) {
-  return <button type={type} aria-label={label} title={label} className={`${ICON_CONTROL_CLASS_NAME} ${className}`} {...props} />;
+export function IconButton({ label, tone = 'ghost', size = 'md', className = '', type = 'button', ...props }: IconButtonProps) {
+  return (
+    <button
+      type={type}
+      aria-label={label}
+      title={label}
+      className={`${iconControlClass(tone, size)} ${className}`}
+      {...props}
+    />
+  );
 }
 
 interface IconLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   label: string;
   href: string;
+  size?: ControlSize;
 }
 
 /** Icon-sized external link; always opens in a new tab without leaking the opener. */
-export function IconLink({ label, className = '', ...props }: IconLinkProps) {
+export function IconLink({ label, size = 'md', className = '', ...props }: IconLinkProps) {
   return (
     <a
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
       title={label}
-      className={`${ICON_CONTROL_CLASS_NAME} ${className}`}
+      className={`${iconControlClass('ghost', size)} ${className}`}
       {...props}
     />
+  );
+}
+
+interface SubmitButtonProps {
+  /** While true the button is disabled and shows an inline spinner instead of blocking the screen. */
+  pending: boolean;
+  children: ReactNode;
+}
+
+export function SubmitButton({ pending, children }: SubmitButtonProps) {
+  return (
+    <button type="submit" disabled={pending} aria-busy={pending} className={textControlClass('primary', 'lg')}>
+      {pending && <Icon name="spinner" className="animate-spin" />}
+      {children}
+    </button>
   );
 }

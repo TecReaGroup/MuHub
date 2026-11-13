@@ -1,23 +1,22 @@
 import { useEffect, useRef } from 'react';
+import { useI18n } from '../../shared/i18n/locale';
+import { SEARCH_FIELD_CLASS } from '../../shared/ui/control-class';
 import { Icon } from '../../shared/ui/Icon';
 import { Kbd } from '../../shared/ui/Kbd';
+import { useSearchContext } from './search-context';
 
 const FOCUS_SHORTCUT_KEY = '/';
-
-interface SearchFieldProps {
-  value: string;
-  onChange: (value: string) => void;
-  /** Fired on Enter, e.g. to open the top match. */
-  onSubmit: () => void;
-}
 
 // The shortcut must not fire while typing or while a dialog owns the keyboard.
 function isShortcutBlocked(target: EventTarget | null): boolean {
   return target instanceof HTMLElement
-    && target.closest('input, textarea, select, [contenteditable="true"], [role="dialog"]') !== null;
+    && target.closest('input, textarea, select, [contenteditable="true"], dialog, [role="dialog"]') !== null;
 }
 
-export function SearchField({ value, onChange, onSubmit }: SearchFieldProps) {
+/** The global search box; the current page decides what Enter does via `usePageSearch`. */
+export function SearchField() {
+  const { text } = useI18n();
+  const { query, setQuery, submitRef } = useSearchContext();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -31,26 +30,27 @@ export function SearchField({ value, onChange, onSubmit }: SearchFieldProps) {
   }, []);
 
   return (
-    <div className="relative min-w-0 flex-1 sm:flex-none">
-      <Icon name="search" className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-fg-subtle" />
+    <div className="relative min-w-0">
+      <Icon name="search" className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-fg-subtle" />
       <input
         ref={inputRef}
         type="search"
-        value={value}
-        aria-label="搜索"
-        placeholder="搜索..."
-        onChange={event => onChange(event.target.value)}
+        value={query}
+        aria-label={text['common.search']}
+        placeholder={text['common.searchPlaceholder']}
+        onChange={event => setQuery(event.target.value)}
         onKeyDown={event => {
-          if (event.key === 'Enter') onSubmit();
+          // Enter that confirms an IME candidate must not submit.
+          if (event.key === 'Enter' && !event.nativeEvent.isComposing) submitRef.current();
           if (event.key === 'Escape') {
-            onChange('');
+            setQuery('');
             event.currentTarget.blur();
           }
         }}
-        className="w-full rounded-xl border border-line bg-surface py-2 pr-9 pl-9 text-sm text-fg transition-colors duration-150 placeholder:text-fg-subtle focus:border-line-strong focus:outline-none sm:w-56"
+        className={`${SEARCH_FIELD_CLASS} h-10 pr-10 pl-11`}
       />
-      {!value && (
-        <Kbd className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2">{FOCUS_SHORTCUT_KEY}</Kbd>
+      {!query && (
+        <Kbd className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2">{FOCUS_SHORTCUT_KEY}</Kbd>
       )}
     </div>
   );
