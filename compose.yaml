@@ -1,0 +1,14 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8787:8787"
+    volumes:
+      - ./backend/data/log:/app/backend/data/log
+      - ./backend/data/store:/app/backend/data/store
+    environment:
+      NODE_ENV: production
+      PORT: 8787

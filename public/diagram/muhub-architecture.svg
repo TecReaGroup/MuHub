@@ -1,0 +1,44 @@
+<svg viewBox="0 0 800 340" fill="none" xmlns="http://www.w3.org/2000/svg" font-family="Inter, 'Noto Sans SC', sans-serif">
+  <style>
+    .node { fill: #ffffff; stroke: #d4d4d8; }
+    .node-key { fill: #ffffff; stroke: #18181b; }
+    .edge { stroke: #a1a1aa; }
+    .edge-soft { stroke: #d4d4d8; }
+    .title { fill: #18181b; font-size: 12px; font-weight: 500; }
+    .caption { fill: #a1a1aa; font-size: 10px; }
+    .zone { stroke: #d4d4d8; }
+    .zone-label { fill: #a1a1aa; font-size: 10px; letter-spacing: 2px; }
+  </style>
+
+  <rect x="365" y="40" width="400" height="260" rx="20" class="zone" stroke-dasharray="4 4" />
+  <text x="565" y="66" text-anchor="middle" class="zone-label">NODE SERVER · :8787</text>
+
+  <path d="M150 170 H200" class="edge" stroke-width="1.25" />
+  <path d="M340 170 H400" class="edge" stroke-width="1.25" />
+  <path d="M540 150 L600 115" class="edge" stroke-width="1.25" />
+  <path d="M540 190 L600 225" class="edge" stroke-width="1.25" />
+  <path d="M470 215 V255" class="edge-soft" stroke-width="1.25" stroke-dasharray="3 3" />
+
+  <rect x="40" y="135" width="110" height="70" rx="12" class="node" stroke-width="1.25" />
+  <text x="95" y="167" text-anchor="middle" class="title">Browser</text>
+  <text x="95" y="185" text-anchor="middle" class="caption">Desktop · Mobile</text>
+
+  <rect x="200" y="125" width="140" height="90" rx="12" class="node-key" stroke-width="1.5" />
+  <text x="270" y="165" text-anchor="middle" class="title">React SPA</text>
+  <text x="270" y="184" text-anchor="middle" class="caption">Vite · Tailwind</text>
+
+  <rect x="400" y="125" width="140" height="90" rx="12" class="node" stroke-width="1.25" />
+  <text x="470" y="165" text-anchor="middle" class="title">HTTP API</text>
+  <text x="470" y="184" text-anchor="middle" class="caption">/api/site · /api/diagram</text>
+
+  <rect x="600" y="80" width="140" height="70" rx="12" class="node" stroke-width="1.25" />
+  <text x="670" y="112" text-anchor="middle" class="title">site.json</text>
+  <text x="670" y="130" text-anchor="middle" class="caption">Navigation Store</text>
+
+  <rect x="600" y="190" width="140" height="70" rx="12" class="node" stroke-width="1.25" />
+  <text x="670" y="222" text-anchor="middle" class="title">diagram.json</text>
+  <text x="670" y="240" text-anchor="middle" class="caption">Diagram Store</text>
+
+  <rect x="410" y="255" width="120" height="32" rx="8" class="node" stroke-width="1.25" />
+  <text x="470" y="275" text-anchor="middle" class="caption">Daily Log Files</text>
+</svg>
