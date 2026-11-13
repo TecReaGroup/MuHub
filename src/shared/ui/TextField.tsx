@@ -1,9 +1,9 @@
 import { forwardRef, useId, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from 'react';
 
-const FIELD_CLASS_NAME = 'w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-sm transition-colors placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none dark:border-zinc-800 dark:bg-zinc-950 dark:focus:border-zinc-600';
+const FIELD_CLASS_NAME = 'w-full rounded-xl border border-line bg-surface-sunken px-3.5 py-2.5 text-sm text-fg transition-colors duration-150 placeholder:text-fg-subtle focus:border-line-strong focus:outline-none';
 
 function FieldLabel({ htmlFor, children }: { htmlFor: string; children: ReactNode }) {
-  return <label htmlFor={htmlFor} className="mb-1.5 block text-xs text-zinc-500">{children}</label>;
+  return <label htmlFor={htmlFor} className="mb-1.5 block text-xs text-fg-muted">{children}</label>;
 }
 
 interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {

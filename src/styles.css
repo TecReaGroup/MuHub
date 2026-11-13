@@ -2,24 +2,81 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * Semantic design tokens. Components use only these (bg-surface, text-fg, border-line…);
+ * raw palette colors stay here so light/dark is defined exactly once.
+ */
 :root {
   --canvas: #fafafa;
-  --card: #ffffff;
+  --surface: #ffffff;
+  --surface-muted: rgb(244 244 245 / 0.8);
+  --surface-raised: #ffffff;
+  --surface-sunken: #fafafa;
+  --chrome: rgb(255 255 255 / 0.6);
+  --hover: #f4f4f5;
+  --fg: #18181b;
+  --fg-muted: #71717a;
+  --fg-subtle: #a1a1aa;
+  --line: rgb(228 228 231 / 0.7);
+  --line-strong: #a1a1aa;
+  --accent: #18181b;
+  --accent-hover: #27272a;
+  --on-accent: #ffffff;
+  --danger: #dc2626;
+  --danger-hover: #ef4444;
+  --ring: rgb(24 24 27 / 0.4);
+  --overlay: rgb(9 9 11 / 0.3);
+  /* Diagrams always sit on white so SVGs render with their authored palette. */
+  --diagram-canvas: #ffffff;
 }
 
 .dark {
   --canvas: #09090b;
-  --card: #121215;
+  --surface: #121215;
+  --surface-muted: rgb(24 24 27 / 0.8);
+  --surface-raised: #27272a;
+  --surface-sunken: #09090b;
+  --chrome: rgb(9 9 11 / 0.6);
+  --hover: #27272a;
+  --fg: #f4f4f5;
+  --fg-muted: #a1a1aa;
+  --fg-subtle: #71717a;
+  --line: rgb(39 39 42 / 0.7);
+  --line-strong: #52525b;
+  --accent: #f4f4f5;
+  --accent-hover: #ffffff;
+  --on-accent: #18181b;
+  --ring: rgb(244 244 245 / 0.4);
+  --overlay: rgb(0 0 0 / 0.6);
 }
 
 @theme inline {
   --color-canvas: var(--canvas);
-  --color-card: var(--card);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-chrome: var(--chrome);
+  --color-hover: var(--hover);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-on-accent: var(--on-accent);
+  --color-danger: var(--danger);
+  --color-danger-hover: var(--danger-hover);
+  --color-ring: var(--ring);
+  --color-overlay: var(--overlay);
+  --color-diagram-canvas: var(--diagram-canvas);
 }
 
 @theme {
   --font-sans: "Inter", "Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif;
-  --animate-fade-up: fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-fade-up: fade-up 0.4s var(--ease-out-expo) both;
 
   @keyframes fade-up {
     from {
@@ -33,42 +90,63 @@
   }
 }
 
-body {
-  min-width: 320px;
-  background: var(--canvas);
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
+@layer base {
+  body {
+    min-width: 320px;
+    background: var(--canvas);
+    color: var(--fg);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    transition: background-color 300ms, color 300ms;
+  }
 
-::selection {
-  background: #18181b;
-  color: #ffffff;
-}
+  /* One keyboard focus style everywhere; text fields signal focus with their border instead. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
 
-.dark ::selection {
-  background: #f4f4f5;
-  color: #18181b;
-}
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: none;
+  }
 
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
+  ::selection {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+  input[type="search"]::-webkit-search-cancel-button {
+    display: none;
+  }
 
-::-webkit-scrollbar-thumb {
-  background: rgb(161 161 170 / 0.3);
-  border-radius: 9999px;
-}
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgb(161 161 170 / 0.5);
-}
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
-input[type="search"]::-webkit-search-cancel-button {
-  display: none;
+  ::-webkit-scrollbar-thumb {
+    background: rgb(161 161 170 / 0.3);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(161 161 170 / 0.5);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
