@@ -47,8 +47,8 @@ export function SitePage() {
         subtitle={`${text['site.count'](sites.length)} · ${text[greetingKeyFor(now)]} · ${formatToday(now, locale)}`}
       />
 
-      <div className="flex flex-col items-start gap-6">
-        {categories.length > 0 && (
+      <CollectionGrid
+        toolbar={categories.length > 0 && (
           <SegmentedControl
             label={text['site.category']}
             options={[{ value: ALL_CATEGORY, label: text['site.allCategory'] }, ...categories.map(category => ({ value: category, label: category }))]}
@@ -56,18 +56,15 @@ export function SitePage() {
             onChange={setSelectedCategory}
           />
         )}
-        <CollectionGrid
-          key={activeCategory}
-          status={status}
-          totalCount={sites.length}
-          visibleItems={visibleSites}
-          noun={text['site.noun']}
-          layoutClassName="w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
-          skeleton={<SiteCardSkeleton />}
-          skeletonCount={6}
-          renderItem={site => <SiteCard site={site} onEdit={openEditor} onRemove={askRemoval} />}
-        />
-      </div>
+        status={status}
+        totalCount={sites.length}
+        visibleItems={visibleSites}
+        noun={text['site.noun']}
+        layoutClassName="grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        skeleton={<SiteCardSkeleton />}
+        skeletonCount={6}
+        renderItem={site => <SiteCard site={site} onEdit={openEditor} onRemove={askRemoval} />}
+      />
 
       <SiteFormModal
         open={editor.open}

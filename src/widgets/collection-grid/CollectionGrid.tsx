@@ -18,6 +18,7 @@ interface CollectionGridProps<Item extends { id: string }> {
   skeleton: ReactNode;
   /** Enough to fill the first screen, not the real item count. */
   skeletonCount: number;
+  toolbar?: ReactNode;
   renderItem: (item: Item) => ReactNode;
 }
 
@@ -43,26 +44,33 @@ export function CollectionGrid<Item extends { id: string }>({
   layoutClassName,
   skeleton,
   skeletonCount,
+  toolbar,
   renderItem,
 }: CollectionGridProps<Item>) {
   const { text } = useI18n();
   const isSkeletonDue = useDelayedFlag(status === 'loading', SKELETON_DELAY_MS);
 
-  if (status === 'loading') {
-    return (
-      <section aria-busy="true" className={`grid ${layoutClassName}`}>
-        <span className="sr-only">{text['common.loading']}</span>
-        {isSkeletonDue && Array.from({ length: skeletonCount }, (_, index) => <Fragment key={index}>{skeleton}</Fragment>)}
-      </section>
-    );
-  }
-
   function renderBody() {
+    if (status === 'loading') {
+      return (
+        <>
+          <span className="sr-only">{text['common.loading']}</span>
+          {isSkeletonDue && Array.from({ length: skeletonCount }, (_, index) => <Fragment key={index}>{skeleton}</Fragment>)}
+        </>
+      );
+    }
     if (status === 'unavailable') return <ErrorBanner>{text['collection.unavailable']}</ErrorBanner>;
     if (totalCount === 0) return <EmptyNotice>{text['collection.empty'](noun)}</EmptyNotice>;
     if (visibleItems.length === 0) return <EmptyNotice>{text['collection.noMatch'](noun)}</EmptyNotice>;
     return visibleItems.map(item => <Fragment key={item.id}>{renderItem(item)}</Fragment>);
   }
 
-  return <section className={`grid animate-fade-in ${layoutClassName}`}>{renderBody()}</section>;
+  return (
+    <section className="w-full space-y-6">
+      {toolbar && <div className="flex flex-wrap items-center gap-3">{toolbar}</div>}
+      <div aria-busy={status === 'loading'} className={`grid ${status === 'loading' ? '' : 'animate-fade-in'} ${layoutClassName}`}>
+        {renderBody()}
+      </div>
+    </section>
+  );
 }

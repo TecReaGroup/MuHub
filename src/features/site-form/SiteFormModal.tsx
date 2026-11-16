@@ -1,9 +1,8 @@
 import { siteHostname, type SiteDraft } from '../../entities/site/site';
 import { useI18n } from '../../shared/i18n/locale';
 import { useDraftForm } from '../../shared/lib/useDraftForm';
-import { Button, SubmitButton } from '../../shared/ui/Button';
 import { ComboboxField } from '../../shared/ui/ComboboxField';
-import { Modal, ModalActions } from '../../shared/ui/Modal';
+import { FormDialog } from '../../shared/ui/FormDialog';
 import { MonoTextField, TextAreaField, TextField } from '../../shared/ui/TextField';
 
 interface SiteFormModalProps {
@@ -32,8 +31,7 @@ export function SiteFormModal({ open, heading, initialDraft, categories, onSubmi
   }
 
   return (
-    <Modal open={open} title={heading} onClose={onClose}>
-      <form onSubmit={submit} className="space-y-4">
+    <FormDialog open={open} title={heading} isSaving={isSaving} onSubmit={submit} onClose={onClose}>
         <MonoTextField label={text['site.url']} type="url" required placeholder="https://linear.app" onBlur={fillTitleFromUrl} {...bindField('url')} />
         <TextField label={text['common.title']} required maxLength={60} placeholder={text['site.titlePlaceholder']} {...bindField('title')} />
         <ComboboxField
@@ -46,11 +44,6 @@ export function SiteFormModal({ open, heading, initialDraft, categories, onSubmi
           onChange={category => setDraft(current => ({ ...current, category }))}
         />
         <TextAreaField label={text['common.optionalDescription']} rows={2} maxLength={200} placeholder={text['site.descriptionPlaceholder']} {...bindField('description')} />
-        <ModalActions>
-          <Button size="lg" onClick={onClose}>{text['common.cancel']}</Button>
-          <SubmitButton pending={isSaving}>{text['common.save']}</SubmitButton>
-        </ModalActions>
-      </form>
-    </Modal>
+    </FormDialog>
   );
 }

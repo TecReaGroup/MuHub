@@ -1,24 +1,15 @@
-import { useId, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from 'react';
-import { FIELD_CLASS } from './control-class';
-import { TEXT_ROLE } from './text-class';
-
-const INPUT_CLASS = `${FIELD_CLASS} h-10 px-3`;
-
-function FormField({ htmlFor, label, children }: { htmlFor: string; label: string; children: ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <label htmlFor={htmlFor} className={`block ${TEXT_ROLE.label}`}>{label}</label>
-      {children}
-    </div>
-  );
-}
+import { useId, type InputHTMLAttributes, type TextareaHTMLAttributes } from 'react';
+import { FIELD_CLASS, INPUT_CLASS } from './control-class';
+import { FormField } from './FormField';
+import { useScrollbar } from './use-scrollbar';
 
 interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'className'> {
   label: string;
 }
 
-export function TextField({ label, ...inputProps }: TextFieldProps) {
-  const id = useId();
+export function TextField({ label, id: suppliedId, ...inputProps }: TextFieldProps) {
+  const generatedId = useId();
+  const id = suppliedId ?? generatedId;
   return (
     <FormField htmlFor={id} label={label}>
       <input id={id} className={INPUT_CLASS} {...inputProps} />
@@ -27,8 +18,9 @@ export function TextField({ label, ...inputProps }: TextFieldProps) {
 }
 
 /** For machine strings (URLs, IDs, paths): monospace, no spellcheck or auto-capitalization. */
-export function MonoTextField({ label, ...inputProps }: TextFieldProps) {
-  const id = useId();
+export function MonoTextField({ label, id: suppliedId, ...inputProps }: TextFieldProps) {
+  const generatedId = useId();
+  const id = suppliedId ?? generatedId;
   return (
     <FormField htmlFor={id} label={label}>
       <input
@@ -47,11 +39,22 @@ interface TextAreaFieldProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaEle
   label: string;
 }
 
-export function TextAreaField({ label, ...textAreaProps }: TextAreaFieldProps) {
-  const id = useId();
+export function TextAreaField({ label, id: suppliedId, onScroll, ...textAreaProps }: TextAreaFieldProps) {
+  const generatedId = useId();
+  const id = suppliedId ?? generatedId;
+  const scrollbar = useScrollbar();
   return (
     <FormField htmlFor={id} label={label}>
-      <textarea id={id} className={`${FIELD_CLASS} scrollbar-subtle resize-none px-3 py-2 leading-relaxed`} {...textAreaProps} />
+      <textarea
+        {...scrollbar}
+        id={id}
+        className={`${FIELD_CLASS} scrollbar-subtle resize-none px-3 py-2 leading-relaxed`}
+        {...textAreaProps}
+        onScroll={event => {
+          scrollbar.onScroll();
+          onScroll?.(event);
+        }}
+      />
     </FormField>
   );
 }

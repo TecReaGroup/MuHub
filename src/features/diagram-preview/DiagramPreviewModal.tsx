@@ -1,13 +1,14 @@
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import type { Diagram } from '../../entities/diagram/diagram';
 import { DiagramImage } from '../../entities/diagram/DiagramImage';
 import { useI18n } from '../../shared/i18n/locale';
-import { Button, IconButton, IconLink } from '../../shared/ui/Button';
+import { IconButton, IconLink } from '../../shared/ui/Button';
 import { Icon } from '../../shared/ui/Icon';
 import { DialogFrame } from '../../shared/ui/Modal';
 import { TEXT_ROLE } from '../../shared/ui/text-class';
+import { useScrollbar } from '../../shared/ui/use-scrollbar';
 
-const ZOOM_STEP = 0.25;
+const ZOOM_SENSITIVITY = 0.002;
 const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 3;
 
@@ -24,11 +25,41 @@ function clampZoom(zoom: number): number {
 
 export function DiagramPreviewModal({ open, diagram, onClose }: DiagramPreviewModalProps) {
   const { text } = useI18n();
-  const [zoom, setZoom] = useState(1);
+  const [viewport, setViewport] = useState({ zoom: 1, x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{ pointerId: number; x: number; y: number } | null>(null);
   const titleId = useId();
+  const scrollbar = useScrollbar();
 
   useEffect(() => {
-    if (open) setZoom(1);
+    if (open) {
+      setViewport({ zoom: 1, x: 0, y: 0 });
+      dragRef.current = null;
+      setIsDragging(false);
+    }
+  }, [open, diagram]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!open || !canvas) return;
+
+    function zoomAtPointer(event: WheelEvent) {
+      event.preventDefault();
+      const bounds = canvas!.getBoundingClientRect();
+      const x = event.clientX - bounds.left;
+      const y = event.clientY - bounds.top;
+      const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? bounds.height : 1);
+      setViewport(current => {
+        const zoom = clampZoom(current.zoom * Math.exp(-delta * ZOOM_SENSITIVITY));
+        const ratio = zoom / current.zoom;
+        return { zoom, x: x - (x - current.x) * ratio, y: y - (y - current.y) * ratio };
+      });
+    }
+
+    // A non-passive listener keeps wheel zoom from scrolling the surrounding dialog.
+    canvas.addEventListener('wheel', zoomAtPointer, { passive: false });
+    return () => canvas.removeEventListener('wheel', zoomAtPointer);
   }, [open, diagram]);
 
   return (
@@ -41,15 +72,6 @@ export function DiagramPreviewModal({ open, diagram, onClose }: DiagramPreviewMo
       <header className="flex shrink-0 items-center justify-between gap-4 border-b border-line py-3 pr-3 pl-5">
         <h2 id={titleId} className={`min-w-0 truncate ${TEXT_ROLE.dialogTitle}`}>{diagram?.title}</h2>
         <div className="flex shrink-0 items-center gap-0.5">
-          <IconButton label={text['diagram.zoomOut']} onClick={() => setZoom(current => clampZoom(current - ZOOM_STEP))}>
-            <Icon name="zoomOut" />
-          </IconButton>
-          <Button tone="ghost" title={text['diagram.zoomReset']} onClick={() => setZoom(1)} className="w-14 tabular-nums">
-            {Math.round(zoom * 100)}%
-          </Button>
-          <IconButton label={text['diagram.zoomIn']} onClick={() => setZoom(current => clampZoom(current + ZOOM_STEP))}>
-            <Icon name="zoomIn" />
-          </IconButton>
           {diagram && (
             <IconLink label={text['diagram.openOriginal']} href={diagram.imageUrl}>
               <Icon name="arrowUpRight" />
@@ -63,23 +85,44 @@ export function DiagramPreviewModal({ open, diagram, onClose }: DiagramPreviewMo
       </header>
 
       <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)_auto] lg:grid-cols-[minmax(0,1fr)_20rem] lg:grid-rows-1">
-        {/* The zoomed canvas is the one place two-axis scrolling is expected: it is how users pan. */}
-        <div className="scrollbar-subtle min-h-0 overflow-auto bg-diagram-canvas p-6">
+        <div
+          ref={canvasRef}
+          className={`min-h-0 overflow-hidden touch-none bg-diagram-canvas ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+          onPointerDown={event => {
+            if (event.button !== 0 || dragRef.current) return;
+            event.currentTarget.setPointerCapture(event.pointerId);
+            dragRef.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY };
+            setIsDragging(true);
+          }}
+          onPointerMove={event => {
+            const drag = dragRef.current;
+            if (!drag || drag.pointerId !== event.pointerId) return;
+            const dx = event.clientX - drag.x;
+            const dy = event.clientY - drag.y;
+            dragRef.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY };
+            setViewport(current => ({ ...current, x: current.x + dx, y: current.y + dy }));
+          }}
+          onLostPointerCapture={() => {
+            dragRef.current = null;
+            setIsDragging(false);
+          }}
+        >
           {diagram && (
-            // Width-based zoom keeps the enlarged image scrollable, unlike a CSS transform.
-            <DiagramImage
-              src={diagram.imageUrl}
-              alt={diagram.title}
-              className="max-w-none transition-[width] duration-medium"
-              style={{ width: `${zoom * 100}%` }}
-            />
+            <div
+              className="h-full w-full origin-top-left p-6"
+              style={{ transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})` }}
+            >
+              <DiagramImage src={diagram.imageUrl} alt={diagram.title} className="h-full w-full object-contain" />
+            </div>
           )}
         </div>
-        <aside className="scrollbar-subtle max-h-48 space-y-2 overflow-y-auto border-t border-line p-5 lg:max-h-none lg:border-t-0 lg:border-l">
-          <h3 className={TEXT_ROLE.panelTitle}>{text['diagram.notes']}</h3>
-          <p className={`${TEXT_ROLE.body} break-words whitespace-pre-line`}>
-            {diagram?.description || text['diagram.noDescription']}
-          </p>
+        <aside className="flex min-h-0 max-h-48 flex-col border-t border-line py-[var(--radius-dialog)] lg:max-h-none lg:border-t-0 lg:border-l">
+          <div {...scrollbar} className="scrollbar-subtle min-h-0 space-y-2 overflow-y-auto px-5">
+            <h3 className={TEXT_ROLE.panelTitle}>{text['diagram.notes']}</h3>
+            <p className={`${TEXT_ROLE.body} break-words whitespace-pre-line`}>
+              {diagram?.description || text['diagram.noDescription']}
+            </p>
+          </div>
         </aside>
       </div>
     </DialogFrame>

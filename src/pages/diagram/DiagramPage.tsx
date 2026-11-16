@@ -44,7 +44,7 @@ export function DiagramPage() {
         totalCount={diagrams.length}
         visibleItems={visibleDiagrams}
         noun={text['diagram.noun']}
-        layoutClassName="grid-cols-1 gap-x-5 gap-y-8 md:grid-cols-2 xl:grid-cols-3"
+        layoutClassName="grid-cols-1 gap-x-7 gap-y-10 md:grid-cols-2"
         skeleton={<DiagramCardSkeleton />}
         skeletonCount={4}
         renderItem={diagram => (

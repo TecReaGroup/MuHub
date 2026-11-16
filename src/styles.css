@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@property --scrollbar-strength {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
 /*
  * Semantic design tokens. Components use only these roles (bg-surface, text-fg, shadow-rest…);
  * raw palette values live only here.
@@ -28,6 +34,8 @@
   --ring: rgb(42 37 34 / 0.4);
   --overlay: rgb(30 26 23 / 0.32);
   --scrollbar-thumb: rgb(120 113 105 / 0.35);
+  --scrollbar-width: 4px;
+  --scrollbar-fade-duration: 250ms;
   --elevation-rest: 0 1px 2px rgb(41 37 33 / 0.04);
   --elevation-hover: 0 8px 20px -6px rgb(41 37 33 / 0.14), 0 2px 4px -2px rgb(41 37 33 / 0.06);
   --elevation-overlay: 0 24px 48px -12px rgb(41 37 33 / 0.22), 0 4px 12px -4px rgb(41 37 33 / 0.08);
@@ -98,28 +106,27 @@
   }
 }
 
-/* Every local scroll area: thin, trackless, thumb only while hovered or focused within. */
 @utility scrollbar-subtle {
+  --scrollbar-strength: 0%;
+  transition: --scrollbar-strength var(--scrollbar-fade-duration) ease;
+  scrollbar-gutter: stable;
   scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
+  scrollbar-color: color-mix(in srgb, var(--scrollbar-thumb) var(--scrollbar-strength), transparent) transparent;
 
-  &:hover,
-  &:focus-within {
-    scrollbar-color: var(--scrollbar-thumb) transparent;
+  &[data-scrolling=true] {
+    --scrollbar-strength: 100%;
   }
-}
 
-@utility scrollbar-arrowless {
-  scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-thumb) transparent;
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 
   @supports selector(::-webkit-scrollbar) {
     scrollbar-width: auto;
     scrollbar-color: auto;
-
     &::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+      width: var(--scrollbar-width);
+      height: var(--scrollbar-width);
     }
 
     &::-webkit-scrollbar-button {
@@ -133,22 +140,16 @@
     }
 
     &::-webkit-scrollbar-thumb {
+      --scrollbar-strength: inherit;
       border-radius: 999px;
-      background: var(--scrollbar-thumb);
+      background: color-mix(in srgb, var(--scrollbar-thumb) var(--scrollbar-strength), transparent);
     }
   }
 }
 
 @layer base {
-  html {
-    /* Reserved gutter keeps content still when switching between short and long pages. */
-    scrollbar-gutter: stable;
-    scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb) transparent;
-  }
-
   /* Native modal dialogs do not lock page scroll on their own. */
-  html:has(dialog[open]) {
+  main:has(dialog[open]) {
     overflow: hidden;
   }
 

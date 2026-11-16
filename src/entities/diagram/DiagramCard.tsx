@@ -1,6 +1,5 @@
 import { useI18n } from '../../shared/i18n/locale';
-import { Icon } from '../../shared/ui/Icon';
-import { HOVER_REVEAL_CLASS, ItemActions } from '../../shared/ui/ItemActions';
+import { ItemActions } from '../../shared/ui/ItemActions';
 import { SkeletonBar } from '../../shared/ui/Placeholder';
 import { TEXT_ROLE } from '../../shared/ui/text-class';
 import type { Diagram } from './diagram';
@@ -24,17 +23,13 @@ export function DiagramCard({ diagram, onPreview, onEdit, onRemove }: DiagramCar
         type="button"
         onClick={() => onPreview(diagram)}
         aria-label={text['diagram.fullscreenItem'](diagram.title)}
-        className={`${PREVIEW_FRAME_CLASS} cursor-zoom-in transition-[border-color,box-shadow] duration-medium hover:border-line-strong hover:shadow-hover`}
+        className={`${PREVIEW_FRAME_CLASS} cursor-pointer transition-[border-color,box-shadow] duration-medium hover:border-line-strong hover:shadow-hover`}
       >
         <DiagramImage
           src={diagram.imageUrl}
           alt={diagram.title}
           className="h-56 w-full object-contain transition-transform duration-long group-hover:scale-[1.02]"
         />
-        <span className={`absolute right-3 bottom-3 flex items-center gap-1 rounded-tight bg-accent/85 px-2 py-1 text-caption font-medium text-on-accent backdrop-blur-sm ${HOVER_REVEAL_CLASS}`}>
-          <Icon name="expand" className="size-3.5" />
-          {text['diagram.fullscreen']}
-        </span>
       </button>
 
       <div className="flex items-start gap-3 px-0.5">

@@ -33,7 +33,7 @@ export function SiteCard({ site, onEdit, onRemove }: SiteCardProps) {
         </div>
         <Icon
           name="arrowUpRight"
-          className="mt-0.5 size-4 shrink-0 text-fg-subtle transition-[color,translate] duration-medium group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-fg"
+          className="pointer-events-none mt-0.5 size-4 shrink-0 text-fg-subtle transition-[color,translate] duration-medium group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-fg"
         />
       </div>
 

@@ -1,7 +1,8 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { FIELD_CLASS } from './control-class';
+import { INPUT_CLASS } from './control-class';
+import { FormField } from './FormField';
 import { Icon } from './Icon';
-import { TEXT_ROLE } from './text-class';
+import { useScrollbar } from './use-scrollbar';
 
 interface ComboboxFieldProps {
   label: string;
@@ -23,6 +24,7 @@ export function ComboboxField({ label, value, options, onChange, placeholder, re
   const [expanded, setExpanded] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [query, setQuery] = useState('');
+  const scrollbar = useScrollbar();
   const matchingOptions = options.filter(option => option.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
   const listVisible = expanded && matchingOptions.length > 0;
 
@@ -60,8 +62,8 @@ export function ComboboxField({ label, value, options, onChange, placeholder, re
   }
 
   return (
-    <div ref={fieldRef} className="space-y-1.5">
-      <label htmlFor={inputId} className={`block ${TEXT_ROLE.label}`}>{label}</label>
+    <div ref={fieldRef}>
+      <FormField htmlFor={inputId} label={label}>
       <div className="relative">
         <input
           ref={inputRef}
@@ -76,7 +78,7 @@ export function ComboboxField({ label, value, options, onChange, placeholder, re
           required={required}
           maxLength={maxLength}
           placeholder={placeholder}
-          className={`${FIELD_CLASS} h-10 pl-3 pr-10 text-left`}
+          className={`${INPUT_CLASS} pr-10 text-left`}
           onPointerDown={event => {
             if (event.button !== 0) return;
             setQuery('');
@@ -129,25 +131,28 @@ export function ComboboxField({ label, value, options, onChange, placeholder, re
           </button>
         )}
         {listVisible && (
-          <ul id={listId} role="listbox" aria-label={label} className="scrollbar-arrowless absolute inset-x-0 top-full z-40 mt-2 max-h-[10.875rem] overflow-y-auto rounded-card border border-line bg-surface p-1.5 shadow-overlay">
-            {matchingOptions.map((option, index) => (
-              <li
-                key={option}
-                ref={activeIndex === index ? activeOptionRef : undefined}
-                id={`${listId}-${index}`}
-                role="option"
-                aria-selected={value === option}
-                className={`relative flex h-10 cursor-pointer items-center rounded-control pl-3 pr-8 text-left text-sm text-fg transition-colors hover:bg-hover aria-selected:bg-accent-soft aria-selected:font-medium ${activeIndex === index ? 'bg-hover' : ''}`}
-                onMouseDown={event => event.preventDefault()}
-                onClick={() => selectOption(option)}
-              >
-                <span className="min-w-0 truncate" title={option}>{option}</span>
-                {value === option && <Icon name="check" className="absolute right-2 size-4 text-accent" />}
-              </li>
-            ))}
-          </ul>
+          <div className="absolute inset-x-0 top-full z-40 mt-2 overflow-hidden rounded-card border border-line bg-surface py-[var(--radius-card)] shadow-overlay">
+            <ul {...scrollbar} id={listId} role="listbox" aria-label={label} className="scrollbar-subtle max-h-40 overflow-y-auto px-1.5">
+              {matchingOptions.map((option, index) => (
+                <li
+                  key={option}
+                  ref={activeIndex === index ? activeOptionRef : undefined}
+                  id={`${listId}-${index}`}
+                  role="option"
+                  aria-selected={value === option}
+                  className={`relative flex h-10 cursor-pointer items-center rounded-control pl-3 pr-8 text-left text-sm text-fg transition-colors hover:bg-hover aria-selected:bg-accent-soft aria-selected:font-medium ${activeIndex === index ? 'bg-hover' : ''}`}
+                  onMouseDown={event => event.preventDefault()}
+                  onClick={() => selectOption(option)}
+                >
+                  <span className="min-w-0 truncate" title={option}>{option}</span>
+                  {value === option && <Icon name="check" className="absolute right-2 size-4 text-accent" />}
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
+      </FormField>
     </div>
   );
 }

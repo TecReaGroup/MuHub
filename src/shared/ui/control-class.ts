@@ -46,5 +46,7 @@ const FIELD_SURFACE_CLASS = 'w-full border border-line bg-surface text-sm text-f
 /** Text inputs and anything that must look like one. */
 export const FIELD_CLASS = `${FIELD_SURFACE_CLASS} rounded-control`;
 
+export const INPUT_CLASS = `${FIELD_CLASS} h-10 px-3`;
+
 /** The global search box: a pill so it reads as navigation, not a form field. */
 export const SEARCH_FIELD_CLASS = `${FIELD_SURFACE_CLASS} rounded-full`;

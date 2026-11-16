@@ -2,8 +2,7 @@ import type { DiagramDraft } from '../../entities/diagram/diagram';
 import { DiagramImage } from '../../entities/diagram/DiagramImage';
 import { useI18n } from '../../shared/i18n/locale';
 import { useDraftForm } from '../../shared/lib/useDraftForm';
-import { Button, SubmitButton } from '../../shared/ui/Button';
-import { Modal, ModalActions } from '../../shared/ui/Modal';
+import { FormDialog } from '../../shared/ui/FormDialog';
 import { MonoTextField, TextAreaField, TextField } from '../../shared/ui/TextField';
 
 interface DiagramFormModalProps {
@@ -21,8 +20,7 @@ export function DiagramFormModal({ open, heading, initialDraft, onSubmit, onClos
   const imageUrl = draft.imageUrl.trim();
 
   return (
-    <Modal open={open} title={heading} onClose={onClose}>
-      <form onSubmit={submit} className="space-y-4">
+    <FormDialog open={open} title={heading} isSaving={isSaving} onSubmit={submit} onClose={onClose}>
         <MonoTextField
           label={text['diagram.imageUrl']}
           required
@@ -36,11 +34,6 @@ export function DiagramFormModal({ open, heading, initialDraft, onSubmit, onClos
         )}
         <TextField label={text['common.title']} required maxLength={80} placeholder={text['diagram.titlePlaceholder']} {...bindField('title')} />
         <TextAreaField label={text['common.optionalDescription']} rows={4} maxLength={1000} placeholder={text['diagram.descriptionPlaceholder']} {...bindField('description')} />
-        <ModalActions>
-          <Button size="lg" onClick={onClose}>{text['common.cancel']}</Button>
-          <SubmitButton pending={isSaving}>{text['common.save']}</SubmitButton>
-        </ModalActions>
-      </form>
-    </Modal>
+    </FormDialog>
   );
 }
