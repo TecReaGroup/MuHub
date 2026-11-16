@@ -3,7 +3,8 @@ import { Icon } from '../../shared/ui/Icon';
 import { ItemActions } from '../../shared/ui/ItemActions';
 import { SkeletonBar } from '../../shared/ui/Placeholder';
 import { TEXT_ROLE } from '../../shared/ui/text-class';
-import { siteHostname, siteMonogram, type Site } from './site';
+import { siteHostname, type Site } from './site';
+import { SiteLogo } from './SiteLogo';
 
 interface SiteCardProps {
   site: Site;
@@ -15,9 +16,7 @@ export function SiteCard({ site, onEdit, onRemove }: SiteCardProps) {
   return (
     <Card className="flex flex-col p-5">
       <div className="flex items-start gap-3">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-control bg-surface-sunken text-xs font-semibold text-fg-muted">
-          {siteMonogram(site.title)}
-        </div>
+        <SiteLogo url={site.url} title={site.title} />
         <div className="min-w-0 flex-1">
           <h3 className={TEXT_ROLE.cardTitle}>
             {/* Stretched link: the ::after overlay makes the whole card clickable and carries the focus ring. */}

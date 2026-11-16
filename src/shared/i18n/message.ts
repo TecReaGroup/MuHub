@@ -3,7 +3,7 @@ export type Locale = (typeof LOCALES)[number];
 
 const ZH_MESSAGES = {
   'nav.main': '主导航',
-  'locale.switch': 'Switch to English',
+  'locale.switch': '选择语言',
   'locale.next': 'EN',
 
   'common.add': '收录',
@@ -78,7 +78,7 @@ export type PlainMessageKey = { [Key in MessageKey]: MessageCatalog[Key] extends
 
 const EN_MESSAGES: MessageCatalog = {
   'nav.main': 'Main navigation',
-  'locale.switch': '切换到中文',
+  'locale.switch': 'Select language',
   'locale.next': '中',
 
   'common.add': 'Add',

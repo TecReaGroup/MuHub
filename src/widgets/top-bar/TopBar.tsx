@@ -3,13 +3,11 @@ import { SearchField } from '../../features/search/SearchField';
 
 function Brand() {
   return (
-    <a href="#" className="flex items-center gap-2.5 rounded-control">
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-control bg-accent text-sm font-semibold text-on-accent">
-        M
-      </span>
-      <span className="text-lg font-semibold max-sm:hidden">
+    <a href="#" aria-label="MuHub" className="flex items-center gap-2.5 rounded-control">
+      <img src="/favicon.svg" alt="" className="size-8 shrink-0" />
+      <span className="text-lg font-semibold tracking-tight max-sm:hidden">
         <span className="text-fg">Mu</span>
-        <span className="text-fg-subtle">Hub</span>
+        <span className="font-normal text-fg-muted">Hub</span>
       </span>
     </a>
   );

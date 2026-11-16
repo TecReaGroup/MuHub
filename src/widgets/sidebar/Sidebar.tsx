@@ -22,7 +22,7 @@ export function Sidebar({ routes, activeRouteId }: SidebarProps) {
   const { text } = useI18n();
   return (
     <aside className="flex shrink-0 items-center gap-2 border-b border-line px-4 py-2 md:sticky md:top-14 md:h-[calc(100dvh-3.5rem)] md:w-56 md:flex-col md:items-stretch md:border-b-0 md:px-3 md:py-6">
-      <nav aria-label={text['nav.main']} className="flex min-w-0 flex-1 gap-1 md:flex-col">
+      <nav aria-label={text['nav.main']} className="flex min-w-0 flex-1 gap-1 md:flex-col md:justify-center md:pb-32">
         {routes.map(route => (
           <a
             key={route.id}
