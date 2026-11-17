@@ -11,4 +11,4 @@ services:
       - ./backend/data/store:/app/backend/data/store
     environment:
       NODE_ENV: production
-      PORT: 8787
+      ACCESS_PASSWORD: ${ACCESS_PASSWORD:-}

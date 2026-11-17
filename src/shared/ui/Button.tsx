@@ -52,12 +52,16 @@ export function IconLink({ label, size = 'md', className = '', ...props }: IconL
 interface SubmitButtonProps {
   /** While true the button is disabled and shows an inline spinner instead of blocking the screen. */
   pending: boolean;
+  /** For an incomplete form; `pending` already disables it. */
+  disabled?: boolean;
+  /** Layout only. */
+  className?: string;
   children: ReactNode;
 }
 
-export function SubmitButton({ pending, children }: SubmitButtonProps) {
+export function SubmitButton({ pending, disabled = false, className = '', children }: SubmitButtonProps) {
   return (
-    <button type="submit" disabled={pending} aria-busy={pending} className={textControlClass('primary', 'lg')}>
+    <button type="submit" disabled={pending || disabled} aria-busy={pending} className={`${textControlClass('primary', 'lg')} ${className}`}>
       {pending && <Icon name="spinner" className="animate-spin" />}
       {children}
     </button>

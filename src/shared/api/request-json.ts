@@ -1,3 +1,5 @@
+import { notifyAccessRevoked } from './access-revocation';
+
 // Fails a hung request instead of leaving the UI in a loading state forever.
 const REQUEST_TIMEOUT_MS = 15_000;
 
@@ -25,6 +27,7 @@ export async function requestJson<T>(path: string, init: RequestInit = {}): Prom
     headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...init.headers },
   });
   if (!response.ok) {
+    if (response.status === 401) notifyAccessRevoked();
     const failure = await response.json().catch(() => null) as { error?: string } | null;
     throw new ApiError(
       failure?.error ?? `HTTP ${response.status}`,

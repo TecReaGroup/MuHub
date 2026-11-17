@@ -2,4 +2,6 @@
 export const API_ENDPOINT = {
   site: '/api/site',
   diagram: '/api/diagram',
+  authLogin: '/api/auth/login',
+  authSession: '/api/auth/session',
 } as const;

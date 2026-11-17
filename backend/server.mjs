@@ -1,6 +1,7 @@
 import { createApp } from './src/app.mjs';
 import { environment } from './src/config/environment.mjs';
 import { log, serializeError } from './src/infrastructure/logger.mjs';
+import { isAccessProtected } from './src/modules/auth/access-session.mjs';
 
 const server = createApp();
 server.on('error', error => {
@@ -13,6 +14,7 @@ server.listen(environment.port, () => {
     port: environment.port,
     environment: environment.isProduction ? 'production' : 'development',
   });
+  if (!isAccessProtected()) log('warn', 'Auth', 'ACCESS_PASSWORD is not set; the library is open to anyone');
 });
 
 for (const signal of ['SIGTERM', 'SIGINT']) {

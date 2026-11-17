@@ -4,24 +4,12 @@ import { LocaleSwitch } from '../../features/locale-switch/LocaleSwitch';
 import { SearchField } from '../../features/search/SearchField';
 import { useSearchContext } from '../../features/search/search-context';
 import { useI18n } from '../../shared/i18n/locale';
-import { RouteLink } from '../../shared/router/RouteLink';
+import { Brand } from '../../shared/ui/Brand';
 import { Button } from '../../shared/ui/Button';
 import { APP_BAR_ACTION_CLASS } from '../../shared/ui/control-class';
 import { Icon } from '../../shared/ui/Icon';
 
 const SEARCH_PANEL_ID = 'top-bar-search';
-
-function Brand({ className }: { className: string }) {
-  return (
-    <RouteLink href="/" aria-label="MuHub" className={`flex items-center gap-2.5 justify-self-start rounded-control ${className}`}>
-      <img src="/favicon.svg" alt="" className="size-8 shrink-0" />
-      <span className="text-lg font-semibold tracking-tight">
-        <span className="text-fg">Mu</span>
-        <span className="font-normal text-fg-muted">Hub</span>
-      </span>
-    </RouteLink>
-  );
-}
 
 /**
  * Full-width app bar: brand left, global search centered, app-level controls right.

@@ -5,6 +5,15 @@ const ZH_MESSAGES = {
   'nav.main': '主导航',
   'locale.switch': '选择语言',
 
+  'access.title': '欢迎回来',
+  'access.subtitle': '这是一个私有资料库，请输入访问密码以继续。',
+  'access.password': '密码',
+  'access.showPassword': '显示密码',
+  'access.hidePassword': '隐藏密码',
+  'access.submit': '登录',
+  'access.wrongPassword': '密码错误，请重试。',
+  'access.unavailable': '暂时无法连接服务器，请稍后再试。',
+
   'common.add': '收录',
   'common.cancel': '取消',
   'common.save': '保存',
@@ -78,6 +87,15 @@ export type PlainMessageKey = { [Key in MessageKey]: MessageCatalog[Key] extends
 const EN_MESSAGES: MessageCatalog = {
   'nav.main': 'Main navigation',
   'locale.switch': 'Select language',
+
+  'access.title': 'Welcome back',
+  'access.subtitle': 'This is a private library. Enter the password to continue.',
+  'access.password': 'Password',
+  'access.showPassword': 'Show password',
+  'access.hidePassword': 'Hide password',
+  'access.submit': 'Log in',
+  'access.wrongPassword': 'Incorrect password. Please try again.',
+  'access.unavailable': 'Cannot reach the server right now. Please try again later.',
 
   'common.add': 'Add',
   'common.cancel': 'Cancel',

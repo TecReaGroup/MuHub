@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { extname } from 'node:path';
 import { log, serializeError } from '../infrastructure/logger.mjs';
+import { hasAccess } from '../modules/auth/access-session.mjs';
+import { routeAuthRequest } from '../modules/auth/auth-route.mjs';
 import { routeDiagramRequest } from '../modules/diagram/diagram-route.mjs';
 import { routeSiteRequest } from '../modules/site/site-route.mjs';
 import { HttpError, sendJson } from '../shared/http.mjs';
@@ -14,11 +16,19 @@ async function routeRequest(request, response, url) {
     return;
   }
 
+  if (await routeAuthRequest(request, response, url)) return;
+
+  const isApiRequest = url.pathname === '/api' || url.pathname.startsWith('/api/');
+  if (isApiRequest && !hasAccess(request)) {
+    sendJson(response, 401, { error: 'Login required' });
+    return;
+  }
+
   for (const routeCollectionRequest of COLLECTION_ROUTES) {
     if (await routeCollectionRequest(request, response, url)) return;
   }
 
-  if (url.pathname === '/api' || url.pathname.startsWith('/api/')) {
+  if (isApiRequest) {
     sendJson(response, 404, { error: 'Route not found' });
     return;
   }
