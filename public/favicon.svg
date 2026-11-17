@@ -1,18 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <defs>
-    <linearGradient id="badge" x1="16" y1="0" x2="16" y2="32" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#342e2a" />
-      <stop offset="100%" stop-color="#221e1b" />
-    </linearGradient>
-  </defs>
-  <rect width="32" height="32" rx="8.5" fill="url(#badge)" />
-  <rect x="0.5" y="0.5" width="31" height="31" rx="8" stroke="#ffffff" stroke-opacity="0.12" />
-  <path
-    d="M8.5 22V10.5L16 17.5L23.5 10.5V15.5"
-    stroke="#f7f6f3"
-    stroke-width="2.8"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  />
-  <circle cx="23.5" cy="21.5" r="2.1" fill="#d8b48e" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="112" fill="#12163A" />
+  <rect x="96" y="112" width="240" height="64" rx="18" fill="#FFFFFF" />
+  <rect x="352" y="112" width="64" height="64" rx="18" fill="#FF6B2C" />
+  <rect x="96" y="192" width="64" height="208" rx="18" fill="#FFFFFF" />
+  <rect x="224" y="192" width="64" height="208" rx="18" fill="#FFFFFF" />
+  <rect x="352" y="192" width="64" height="208" rx="18" fill="#FFFFFF" />
 </svg>
