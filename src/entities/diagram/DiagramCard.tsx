@@ -7,6 +7,8 @@ import { DiagramImage } from './DiagramImage';
 
 // Media tile: the framed preview is the card; title and actions sit below it on the canvas.
 const PREVIEW_FRAME_CLASS = 'relative block w-full overflow-hidden rounded-card border border-line bg-diagram-canvas p-4 sm:p-5';
+// Shorter on phones so more than one diagram fits on the first screen.
+const PREVIEW_HEIGHT_CLASS = 'h-48 sm:h-56';
 
 interface DiagramCardProps {
   diagram: Diagram;
@@ -23,12 +25,12 @@ export function DiagramCard({ diagram, onPreview, onEdit, onRemove }: DiagramCar
         type="button"
         onClick={() => onPreview(diagram)}
         aria-label={text['diagram.fullscreenItem'](diagram.title)}
-        className={`${PREVIEW_FRAME_CLASS} cursor-pointer transition-[border-color,box-shadow] duration-medium hover:border-line-strong hover:shadow-hover`}
+        className={`${PREVIEW_FRAME_CLASS} cursor-pointer transition-[scale,border-color,box-shadow] duration-medium hover:border-line-strong hover:shadow-hover active:scale-[0.98]`}
       >
         <DiagramImage
           src={diagram.imageUrl}
           alt={diagram.title}
-          className="h-56 w-full object-contain transition-transform duration-long group-hover:scale-[1.02]"
+          className={`${PREVIEW_HEIGHT_CLASS} w-full object-contain transition-transform duration-long group-hover:scale-[1.02]`}
         />
       </button>
 
@@ -36,7 +38,7 @@ export function DiagramCard({ diagram, onPreview, onEdit, onRemove }: DiagramCar
         <div className="min-w-0 flex-1 space-y-1">
           <h3 className={TEXT_ROLE.cardTitle}>{diagram.title}</h3>
           {diagram.description && (
-            <p className="line-clamp-2 text-sm leading-5 break-words text-fg-muted">{diagram.description}</p>
+            <p className={TEXT_ROLE.cardDescription}>{diagram.description}</p>
           )}
         </div>
         <ItemActions
@@ -55,7 +57,7 @@ export function DiagramCardSkeleton() {
   return (
     <div className="flex flex-col gap-3">
       <div className={PREVIEW_FRAME_CLASS}>
-        <SkeletonBar className="h-56 w-full" />
+        <SkeletonBar className={`${PREVIEW_HEIGHT_CLASS} w-full`} />
       </div>
       <div className="space-y-2 px-0.5">
         <SkeletonBar className="h-4 w-2/5" />

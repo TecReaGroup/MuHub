@@ -1,4 +1,5 @@
-import { createCollectionClient } from '../../shared/lib/collection-client';
+import { API_ENDPOINT } from '../../shared/api/api-endpoint';
+import { createCollectionStore } from '../../shared/api/collection-store';
 
 export interface Site {
   id: string;
@@ -13,7 +14,7 @@ export type SiteDraft = Pick<Site, 'title' | 'url' | 'category' | 'description'>
 
 export const EMPTY_SITE_DRAFT: SiteDraft = { title: '', url: '', category: '', description: '' };
 
-export const siteClient = createCollectionClient<Site, SiteDraft>('/api/site');
+export const siteCollection = createCollectionStore<Site, SiteDraft>(API_ENDPOINT.site, 'Site');
 
 export function toSiteDraft({ title, url, category, description }: Site): SiteDraft {
   return { title, url, category, description };

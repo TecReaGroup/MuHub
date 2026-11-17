@@ -10,13 +10,14 @@ interface CardProps {
 }
 
 /**
- * Collection item surface. Hover lifts it a step (border + shadow + slight rise).
+ * Collection item surface. Hover lifts it a step (border + shadow + slight rise); pressing its link
+ * sinks it slightly, which is the only feedback touch screens get since they have no hover.
  * It is a Tailwind `group`, so children can react to card hover/focus.
  */
 export function Card({ className = '', children }: CardProps) {
   return (
     <article
-      className={`group ${CARD_SHELL_CLASS} transition-[translate,border-color,box-shadow] duration-medium focus-within:border-line-strong hover:-translate-y-0.5 hover:border-line-strong hover:shadow-hover ${className}`}
+      className={`group ${CARD_SHELL_CLASS} transition-[translate,scale,border-color,box-shadow] duration-medium focus-within:border-line-strong hover:-translate-y-0.5 hover:border-line-strong hover:shadow-hover has-[a:active]:scale-[0.98] ${className}`}
     >
       {children}
     </article>

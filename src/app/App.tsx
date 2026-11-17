@@ -21,14 +21,15 @@ export function App() {
         {/* Keyed by route so every page starts with an empty search and no stale add handler. */}
         <SearchProvider key={activeRoute.id}>
           <AddActionProvider>
-            <div className="grid h-dvh grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)] overflow-hidden bg-canvas text-fg">
+            {/* Only <main> scrolls, so the bars stay put without sticky positioning. */}
+            <div className="flex h-dvh flex-col overflow-hidden bg-canvas text-fg">
               <TopBar />
-              <div className="flex min-h-0 min-w-0 flex-col md:flex-row">
+              <div className="flex min-h-0 flex-1 flex-col md:flex-row">
                 <Sidebar routes={HUB_ROUTES} activeRouteId={activeRoute.id} />
                 <TabBar routes={HUB_ROUTES} activeRouteId={activeRoute.id} />
                 <main
                   {...scrollbar}
-                  className="scrollbar-subtle min-h-0 min-w-0 flex-1 overflow-y-auto animate-fade-in px-4 pb-8 sm:px-6 md:pr-8 md:pb-16 md:pl-6"
+                  className="scrollbar-subtle min-h-0 min-w-0 flex-1 overflow-y-auto animate-fade-in px-4 pb-8 sm:px-6 md:pr-8 md:pb-16"
                 >
                   <div className="mx-auto w-full max-w-7xl lg:px-8 xl:px-12">
                     <Page />

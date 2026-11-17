@@ -1,4 +1,4 @@
-export interface SegmentedOption {
+interface SegmentedOption {
   value: string;
   label: string;
 }
@@ -10,12 +10,28 @@ interface SegmentedControlProps {
   onChange: (option: string) => void;
 }
 
-/** Categories scroll inside a padded sunken track. */
+// Below `md` the control becomes a borderless chip row that bleeds to the screen edge (cancelling
+// <main>'s gutter), so scrolled chips slide off-screen instead of being cut at an inner border.
+// From `md` up it is a padded sunken track.
+const TRACK_CLASS = 'min-w-0 -mx-4 sm:-mx-6 md:mx-0 md:max-w-full md:rounded-control md:bg-surface-sunken md:p-1';
+
+// The vertical padding gives the chips' hit-area overlay room inside the scroller, which clips both axes.
+const SCROLLER_CLASS = 'min-w-0 overflow-x-auto overscroll-x-contain px-4 py-1.5 [scrollbar-width:none] sm:px-6 md:p-0 [&::-webkit-scrollbar]:hidden';
+
+// Chips stay 32px tall visually; the ::after overlay extends the touch target to 44px (WCAG 2.5.5).
+const OPTION_CLASS = [
+  'relative inline-flex h-8 shrink-0 cursor-pointer items-center justify-center px-3.5 text-xs leading-5 font-medium whitespace-nowrap transition-[color,background-color,box-shadow]',
+  'after:absolute after:inset-x-0 after:-inset-y-1.5 md:after:hidden',
+  'rounded-full bg-surface-sunken text-fg-muted aria-selected:bg-accent aria-selected:text-on-accent',
+  'md:rounded-tight md:bg-transparent md:px-3 md:hover:text-fg md:aria-selected:bg-surface md:aria-selected:text-fg md:aria-selected:shadow-rest',
+].join(' ');
+
+/** Single-choice filter: a scrolling chip row on phones, a segmented track on larger screens. */
 export function SegmentedControl({ label, options, value, onChange }: SegmentedControlProps) {
   return (
-    <div className="min-w-0 max-w-full rounded-control bg-surface-sunken p-1">
-      <div className="min-w-0 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div role="tablist" aria-label={label} className="flex w-max min-w-full items-center justify-center gap-1">
+    <div className={TRACK_CLASS}>
+      <div className={SCROLLER_CLASS}>
+        <div role="tablist" aria-label={label} className="flex w-max items-center gap-2 md:min-w-full md:justify-center md:gap-1">
           {options.map(option => (
             <button
               key={option.value}
@@ -23,7 +39,7 @@ export function SegmentedControl({ label, options, value, onChange }: SegmentedC
               role="tab"
               aria-selected={option.value === value}
               onClick={() => onChange(option.value)}
-              className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center rounded-tight px-3 py-0 text-center text-xs leading-5 font-medium whitespace-nowrap text-fg-muted transition-[color,background-color,box-shadow] hover:text-fg aria-selected:bg-surface aria-selected:text-fg aria-selected:shadow-rest pointer-coarse:h-10"
+              className={OPTION_CLASS}
             >
               {option.label}
             </button>

@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState, type ReactNode } from 'react';
 import { useI18n } from '../../shared/i18n/locale';
-import type { CollectionStatus } from '../../shared/lib/useRemoteCollection';
+import type { CollectionStatus } from '../../shared/api/collection-store';
 import { EmptyNotice, ErrorBanner } from '../../shared/ui/Placeholder';
 
 // Fast loads finish before this, so they never flash a skeleton.

@@ -1,5 +1,5 @@
 import { log } from '../infrastructure/logger.mjs';
-import { HttpError, readJsonBody, sendJson, sendNoContent } from '../shared/http.mjs';
+import { HttpError, readJsonBody, sendJson, sendNoContent, sendRevalidatableJson } from '../shared/http.mjs';
 
 /**
  * Builds the REST router for one collection store:
@@ -13,7 +13,7 @@ export function createCollectionRoute({ basePath, store, parseDraft, moduleName 
 
   async function routeCollection(request, response) {
     if (request.method === 'GET') {
-      sendJson(response, 200, { items: await store.list() });
+      sendRevalidatableJson(request, response, { items: await store.list() });
       return true;
     }
     if (request.method === 'POST') {

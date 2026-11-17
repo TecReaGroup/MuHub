@@ -67,7 +67,7 @@ export function DiagramPreviewModal({ open, diagram, onClose }: DiagramPreviewMo
       open={open}
       onClose={onClose}
       labelledBy={titleId}
-      className="h-[min(56rem,calc(100dvh-1.5rem))] w-[calc(100vw-1.5rem)] overflow-hidden sm:h-[min(56rem,calc(100dvh-2rem))] sm:w-[min(72rem,calc(100vw-2rem))]"
+      className="h-[min(56rem,calc(100dvh-2rem))] w-[min(72rem,calc(100vw-1rem))] overflow-hidden"
     >
       <header className="flex shrink-0 items-center justify-between gap-4 border-b border-line py-3 pr-3 pl-5">
         <h2 id={titleId} className={`min-w-0 truncate ${TEXT_ROLE.dialogTitle}`}>{diagram?.title}</h2>

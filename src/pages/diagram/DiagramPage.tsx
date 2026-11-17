@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { diagramClient, diagramMatchesQuery, EMPTY_DIAGRAM_DRAFT, toDiagramDraft, type Diagram } from '../../entities/diagram/diagram';
+import { diagramCollection, diagramMatchesQuery, EMPTY_DIAGRAM_DRAFT, toDiagramDraft, type Diagram } from '../../entities/diagram/diagram';
 import { DiagramCard, DiagramCardSkeleton } from '../../entities/diagram/DiagramCard';
 import { DiagramFormModal } from '../../features/diagram-form/DiagramFormModal';
 import { DiagramPreviewModal } from '../../features/diagram-preview/DiagramPreviewModal';
@@ -14,10 +14,9 @@ import { PageHeader } from '../../widgets/page-header/PageHeader';
 export function DiagramPage() {
   const { text } = useI18n();
   const { items: diagrams, status, openCreator, openEditor, askRemoval, editor, removal } = useCollectionWorkspace({
-    client: diagramClient,
+    collection: diagramCollection,
     emptyDraft: EMPTY_DIAGRAM_DRAFT,
     toDraft: toDiagramDraft,
-    moduleName: 'Diagram',
   });
   const query = usePageSearch(previewTopMatch);
   usePageAddAction(openCreator);
@@ -47,7 +46,7 @@ export function DiagramPage() {
         totalCount={diagrams.length}
         visibleItems={visibleDiagrams}
         noun={text['diagram.noun']}
-        layoutClassName="grid-cols-1 gap-x-7 gap-y-10 md:grid-cols-2"
+        layoutClassName="grid-cols-1 gap-x-7 gap-y-8 md:grid-cols-2 md:gap-y-10"
         skeleton={<DiagramCardSkeleton />}
         skeletonCount={4}
         renderItem={diagram => (

@@ -1,5 +1,6 @@
 import { AddButton } from '../../features/add-action/AddButton';
 import { useI18n } from '../../shared/i18n/locale';
+import { RouteLink } from '../../shared/router/RouteLink';
 import { Icon } from '../../shared/ui/Icon';
 import type { NavRoute } from '../../shared/ui/nav-route';
 
@@ -15,13 +16,14 @@ const DESKTOP_NAV_ITEM_CLASS = 'flex h-10 shrink-0 items-center gap-3 rounded-co
 export function Sidebar({ routes, activeRouteId }: SidebarProps) {
   const { text } = useI18n();
   return (
-    <aside className="sticky top-14 hidden h-[calc(100dvh-3.5rem)] w-56 shrink-0 flex-col items-stretch gap-2 bg-canvas px-3 py-6 md:flex">
-      <nav aria-label={text['nav.main']} className="flex min-w-0 flex-1 flex-col justify-center gap-1 overflow-x-auto pt-1 pb-32">
+    <aside className="hidden w-56 shrink-0 flex-col gap-2 px-3 py-6 md:flex">
+      {/* Bottom padding lifts the centered items toward the optical center. */}
+      <nav aria-label={text['nav.main']} className="flex flex-1 flex-col justify-center gap-1 pt-1 pb-32">
         {routes.map(route => (
-          <a key={route.id} href={`#${route.id}`} aria-current={route.id === activeRouteId ? 'page' : undefined} className={DESKTOP_NAV_ITEM_CLASS}>
+          <RouteLink key={route.id} href={route.path} aria-current={route.id === activeRouteId ? 'page' : undefined} className={DESKTOP_NAV_ITEM_CLASS}>
             <Icon name={route.icon} className="size-[1.125rem] shrink-0" />
             <span>{text[route.labelKey]}</span>
-          </a>
+          </RouteLink>
         ))}
       </nav>
       <AddButton className="w-full" />

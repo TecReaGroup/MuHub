@@ -212,18 +212,29 @@
    * the backdrop only fades, since moving it would expose the page edge.
    */
   .modal-dialog {
+    --dialog-hidden-transform: translateY(6px) scale(0.98);
     /*
-     * Center inside the visual viewport (vars set by DialogFrame): on iOS the on-screen keyboard
-     * shrinks only the visual viewport, so centering in the layout viewport would hide fields under it.
+     * Place inside the visual viewport (vars set by DialogFrame): on iOS the on-screen keyboard
+     * shrinks only the visual viewport, so using the layout viewport would hide fields under it.
      */
     inset: var(--visual-viewport-top, 0px) 0 calc(100% - var(--visual-viewport-top, 0px) - var(--visual-viewport-height, 100dvh));
+    margin: auto;
     max-height: calc(var(--visual-viewport-height, 100dvh) - 2rem);
     scroll-padding-block: 1rem;
     opacity: 0;
-    transform: translateY(6px) scale(0.98);
+    transform: var(--dialog-hidden-transform);
     transition-property: opacity, transform, overlay, display;
     transition-duration: var(--transition-duration-medium);
     transition-behavior: allow-discrete;
+  }
+
+  /* Below md every dialog is an edge-attached bottom sheet within thumb reach, so it slides up from below. */
+  @media (width < 48rem) {
+    .modal-dialog {
+      --dialog-hidden-transform: translateY(100%);
+      width: 100%;
+      margin: auto 0 0;
+    }
   }
 
   .modal-dialog[open] {
@@ -246,7 +257,7 @@
   @starting-style {
     .modal-dialog[open] {
       opacity: 0;
-      transform: translateY(6px) scale(0.98);
+      transform: var(--dialog-hidden-transform);
     }
 
     .modal-dialog[open]::backdrop {

@@ -1,16 +1,14 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useSyncExternalStore } from 'react';
+import type { CollectionStore } from '../api/collection-store';
 import { useI18n } from '../i18n/locale';
 import { useToast } from '../ui/Toast';
-import type { CollectionClient } from './collection-client';
 import { log, serializeError } from './logger';
-import { useRemoteCollection } from './useRemoteCollection';
 
 interface WorkspaceOptions<Item, Draft> {
   /** Module-level constants only: identities must be stable across renders. */
-  client: CollectionClient<Item, Draft>;
+  collection: CollectionStore<Item, Draft>;
   emptyDraft: Draft;
   toDraft: (item: Item) => Draft;
-  moduleName: string;
 }
 
 interface EditorState<Item, Draft> {
@@ -30,9 +28,10 @@ interface RemovalState<Item> {
  * success/failure toasts and error logging. Pages only render.
  */
 export function useCollectionWorkspace<Item extends { id: string; title: string }, Draft extends { title: string }>(
-  { client, emptyDraft, toDraft, moduleName }: WorkspaceOptions<Item, Draft>,
+  { collection, emptyDraft, toDraft }: WorkspaceOptions<Item, Draft>,
 ) {
-  const { items, status, addItem, editItem, removeItem } = useRemoteCollection(client, moduleName);
+  const { items, status } = useSyncExternalStore(collection.subscribe, collection.getSnapshot);
+  const { moduleName } = collection;
   const showToast = useToast();
   const { text } = useI18n();
   const [editor, setEditor] = useState<EditorState<Item, Draft>>({ open: false, target: null, initialDraft: emptyDraft });
@@ -54,8 +53,8 @@ export function useCollectionWorkspace<Item extends { id: string; title: string 
 
   async function saveDraft(draft: Draft) {
     try {
-      if (editor.target) await editItem(editor.target.id, draft);
-      else await addItem(draft);
+      if (editor.target) await collection.update(editor.target.id, draft);
+      else await collection.create(draft);
       showToast(text['toast.saved'](draft.title));
       closeEditor();
     } catch (error) {
@@ -69,7 +68,7 @@ export function useCollectionWorkspace<Item extends { id: string; title: string 
     if (!target) return;
     closeRemoval();
     try {
-      await removeItem(target.id);
+      await collection.remove(target.id);
       showToast(text['toast.deleted'](target.title));
     } catch (error) {
       log('error', moduleName, 'Failed to delete item', serializeError(error));

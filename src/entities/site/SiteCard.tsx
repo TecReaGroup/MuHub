@@ -6,6 +6,9 @@ import { TEXT_ROLE } from '../../shared/ui/text-class';
 import { siteHostname, type Site } from './site';
 import { SiteLogo } from './SiteLogo';
 
+// Shared by the card and its skeleton so the swap never shifts layout.
+const SITE_CARD_LAYOUT_CLASS = 'flex flex-col p-4 sm:p-5';
+
 interface SiteCardProps {
   site: Site;
   onEdit: (site: Site) => void;
@@ -14,7 +17,7 @@ interface SiteCardProps {
 
 export function SiteCard({ site, onEdit, onRemove }: SiteCardProps) {
   return (
-    <Card className="flex flex-col p-5">
+    <Card className={SITE_CARD_LAYOUT_CLASS}>
       <div className="flex items-start gap-3">
         <SiteLogo url={site.url} title={site.title} />
         <div className="min-w-0 flex-1">
@@ -37,7 +40,7 @@ export function SiteCard({ site, onEdit, onRemove }: SiteCardProps) {
         />
       </div>
 
-      <p className="mt-3 line-clamp-2 min-h-10 flex-1 text-sm leading-5 break-words text-fg-muted">{site.description}</p>
+      <p className={`mt-3 min-h-10 flex-1 ${TEXT_ROLE.cardDescription}`}>{site.description}</p>
 
       {/* Sits above the stretched link; only the action buttons take pointer events. */}
       <footer className="pointer-events-none relative z-10 mt-3 flex min-h-7 items-center justify-between gap-2">
@@ -58,7 +61,7 @@ export function SiteCard({ site, onEdit, onRemove }: SiteCardProps) {
 /** Same shell, padding and row heights as `SiteCard`, so the swap causes no layout shift. */
 export function SiteCardSkeleton() {
   return (
-    <div className={`${CARD_SHELL_CLASS} flex flex-col p-5`}>
+    <div className={`${CARD_SHELL_CLASS} ${SITE_CARD_LAYOUT_CLASS}`}>
       <div className="flex items-start gap-3">
         <SkeletonBar className="size-10 rounded-control" />
         <div className="flex-1 space-y-2 pt-0.5">

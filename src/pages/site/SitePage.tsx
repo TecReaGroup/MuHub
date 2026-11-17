@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { EMPTY_SITE_DRAFT, siteClient, siteMatchesQuery, toSiteDraft } from '../../entities/site/site';
+import { EMPTY_SITE_DRAFT, siteCollection, siteMatchesQuery, toSiteDraft } from '../../entities/site/site';
 import { SiteCard, SiteCardSkeleton } from '../../entities/site/SiteCard';
 import { usePageAddAction } from '../../features/add-action/add-action-context';
 import { usePageSearch } from '../../features/search/search-context';
@@ -18,10 +18,9 @@ const ALL_CATEGORY = '';
 export function SitePage() {
   const { locale, text } = useI18n();
   const { items: sites, status, openCreator, openEditor, askRemoval, editor, removal } = useCollectionWorkspace({
-    client: siteClient,
+    collection: siteCollection,
     emptyDraft: EMPTY_SITE_DRAFT,
     toDraft: toSiteDraft,
-    moduleName: 'Site',
   });
   const [selectedCategory, setSelectedCategory] = useState(ALL_CATEGORY);
   const query = usePageSearch(openTopMatch);
@@ -63,7 +62,7 @@ export function SitePage() {
         totalCount={sites.length}
         visibleItems={visibleSites}
         noun={text['site.noun']}
-        layoutClassName="grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        layoutClassName="grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3"
         skeleton={<SiteCardSkeleton />}
         skeletonCount={6}
         renderItem={site => <SiteCard site={site} onEdit={openEditor} onRemove={askRemoval} />}

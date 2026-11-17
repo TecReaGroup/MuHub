@@ -1,4 +1,4 @@
-.PHONY: install run run-backend run-frontend build
+.PHONY: install run run-backend run-frontend build docker docker-down
 
 install:
 	npm install
@@ -12,3 +12,7 @@ run-backend:
 
 run-frontend:
 	npm run dev -- --host 0.0.0.0
+
+# Rebuilds the image and serves the app on :8787 in the background.
+docker:
+	docker compose up -d --build

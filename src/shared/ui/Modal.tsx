@@ -7,6 +7,9 @@ import { TEXT_ROLE } from './text-class';
 // Initial focus: explicit opt-in first, then the first text field, then the dialog itself.
 const INITIAL_FOCUS_SELECTORS = ['[data-autofocus]', 'input, textarea'];
 
+// Below md the panel spans the screen bottom edge; bottom padding clears the home indicator.
+const SHEET_PANEL_CLASS = 'max-md:w-full max-md:rounded-b-none max-md:border-x-0 max-md:border-b-0 max-md:pt-7 max-md:pb-[max(1.25rem,env(safe-area-inset-bottom))]';
+
 function focusInitialElement(dialog: HTMLDialogElement) {
   // On touch devices, focusing a text input immediately pops the virtual keyboard over the dialog.
   if (window.matchMedia('(pointer: coarse)').matches) {
@@ -28,7 +31,7 @@ interface DialogFrameProps {
   onClose: () => void;
   labelledBy: string;
   describedBy?: string;
-  /** Size and padding only, e.g. `w-[min(28rem,calc(100vw-2rem))] p-6`. */
+  /** Size and padding only, e.g. `w-[min(28rem,calc(100vw-1rem))] p-6`; below md it is overridden to a full-width sheet. */
   className: string;
   children: ReactNode;
 }
@@ -86,9 +89,10 @@ export function DialogFrame({ open, onClose, labelledBy, describedBy, className,
       onClick={event => {
         if (pressStartedOnBackdropRef.current && event.target === event.currentTarget) onClose();
       }}
-      className="modal-dialog m-auto max-w-none overflow-y-auto overscroll-contain border-0 bg-transparent p-0 text-fg focus:outline-none"
+      className="modal-dialog max-w-none overflow-y-auto overscroll-contain border-0 bg-transparent p-0 text-fg focus:outline-none"
     >
-      <div className={`flex flex-col rounded-dialog border border-line bg-surface shadow-overlay ${className}`}>
+      <div className={`relative flex flex-col rounded-dialog border border-line bg-surface shadow-overlay ${className} ${SHEET_PANEL_CLASS}`}>
+        <div aria-hidden className="absolute top-2 left-1/2 h-1 w-9 -translate-x-1/2 rounded-full bg-line md:hidden" />
         {children}
       </div>
     </dialog>
@@ -107,10 +111,11 @@ export function Modal({ open, title, onClose, children }: ModalProps) {
   const { text } = useI18n();
   const titleId = useId();
   return (
-    <DialogFrame open={open} onClose={onClose} labelledBy={titleId} className="w-[min(28rem,calc(100vw-1.5rem))] p-4 sm:w-[min(28rem,calc(100vw-2rem))] sm:p-6">
+    <DialogFrame open={open} onClose={onClose} labelledBy={titleId} className="w-[min(28rem,calc(100vw-1rem))] p-5 sm:p-6">
       <header className="mb-4 flex items-center justify-between gap-4 sm:mb-5">
         <h2 id={titleId} className={TEXT_ROLE.dialogTitle}>{title}</h2>
-        <IconButton label={text['common.close']} onClick={onClose} className="-mr-2">
+        {/* Sheets dismiss via Cancel or the backdrop, matching platform bottom-sheet convention. */}
+        <IconButton label={text['common.close']} onClick={onClose} className="-mr-2 max-md:hidden">
           <Icon name="close" />
         </IconButton>
       </header>
@@ -119,7 +124,10 @@ export function Modal({ open, title, onClose, children }: ModalProps) {
   );
 }
 
-/** Dialog footer: cancel on the left, confirm on the right. Expects a 1rem gap above it from its parent. */
+/**
+ * Dialog footer: cancel on the left, confirm on the right. Expects a 1rem gap above it from its parent.
+ * On phones the buttons split the sheet width so both are easy thumb targets.
+ */
 export function ModalActions({ children }: { children: ReactNode }) {
-  return <div className="flex justify-end gap-2 pt-2">{children}</div>;
+  return <div className="flex justify-end gap-2 pt-2 max-sm:*:flex-1">{children}</div>;
 }

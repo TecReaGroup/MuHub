@@ -24,8 +24,8 @@ async function routeRequest(request, response, url) {
   }
 
   if (request.method === 'GET') {
-    if (await streamFrontend(response, url.pathname)) return;
-    if (!extname(url.pathname) && await streamFrontend(response, '/')) return;
+    if (await streamFrontend(request, response, url.pathname)) return;
+    if (!extname(url.pathname) && await streamFrontend(request, response, '/')) return;
   }
 
   sendJson(response, 404, { error: 'Route not found' });

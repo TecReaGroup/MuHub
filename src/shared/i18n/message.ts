@@ -18,6 +18,8 @@ const ZH_MESSAGES = {
   'common.unknownError': '未知错误',
   'common.editItem': (title: string) => `编辑 ${title}`,
   'common.deleteItem': (title: string) => `删除 ${title}`,
+  'common.edit': '编辑',
+  'common.moreActions': (title: string) => `${title} 的更多操作`,
   'common.confirmDelete': (title: string) => `确定删除「${title}」吗？此操作无法撤销。`,
 
   'toast.saved': (title: string) => `已保存「${title}」`,
@@ -89,6 +91,8 @@ const EN_MESSAGES: MessageCatalog = {
   'common.unknownError': 'Unknown error',
   'common.editItem': title => `Edit ${title}`,
   'common.deleteItem': title => `Delete ${title}`,
+  'common.edit': 'Edit',
+  'common.moreActions': title => `More actions for ${title}`,
   'common.confirmDelete': title => `Delete “${title}”? This cannot be undone.`,
 
   'toast.saved': title => `Saved “${title}”`,

@@ -26,7 +26,7 @@ export function ConfirmDialog({ open, title, message, confirmLabel, onConfirm, o
       onClose={onClose}
       labelledBy={titleId}
       describedBy={messageId}
-      className="w-[min(25rem,calc(100vw-2rem))] p-6"
+      className="w-[min(25rem,calc(100vw-1rem))] p-5 sm:p-6"
     >
       <div className="mb-4 flex gap-4">
         <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-danger-soft text-danger">

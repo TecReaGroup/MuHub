@@ -1,15 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { useI18n } from '../../shared/i18n/locale';
 import { LOCALES, type Locale } from '../../shared/i18n/message';
-import { APP_BAR_ACTION_CLASS } from '../../shared/ui/control-class';
+import { APP_BAR_ACTION_CLASS, MENU_ITEM_CLASS, MENU_SURFACE_CLASS } from '../../shared/ui/control-class';
 import { Icon } from '../../shared/ui/Icon';
+import { TEXT_ROLE } from '../../shared/ui/text-class';
 
 const LOCALE_LABELS: Record<Locale, string> = { 'zh-CN': '简体中文', en: 'English' };
 
 // Compact icon action on mobile; a labelled secondary pill from `md` up.
 const TRIGGER_CLASS = `${APP_BAR_ACTION_CLASS} list-none [&::-webkit-details-marker]:hidden md:h-9 md:w-auto md:gap-1.5 md:rounded-control md:border md:border-line md:bg-surface md:px-4 md:text-sm md:font-medium md:whitespace-nowrap md:text-fg md:shadow-rest md:hover:border-line-strong md:group-open:bg-surface md:group-open:text-fg md:pointer-coarse:min-h-11 md:[&_svg]:size-4`;
-
-const OPTION_CLASS = 'flex min-h-11 w-full cursor-pointer items-center justify-between gap-3 rounded-control px-3 text-sm text-fg transition-colors hover:bg-hover active:bg-hover aria-pressed:bg-accent-soft aria-pressed:font-medium md:h-10 md:min-h-0 md:pointer-coarse:min-h-11';
 
 /** Selects the interface language from the supported locales. */
 export function LocaleSwitch() {
@@ -53,16 +52,17 @@ export function LocaleSwitch() {
       <div
         role="group"
         aria-label={text['locale.switch']}
-        className="absolute top-full right-0 z-40 mt-2 w-48 origin-top-right animate-fade-in rounded-card border border-line bg-surface p-1.5 shadow-overlay md:w-max md:min-w-full"
+        className={`${MENU_SURFACE_CLASS} absolute top-full right-0 z-40 mt-2 w-48 origin-top-right animate-fade-in p-1.5 md:w-max md:min-w-full`}
       >
-        <p className="px-3 pt-1.5 pb-1 text-caption font-medium text-fg-subtle md:hidden">{text['locale.switch']}</p>
+        {/* The mobile trigger is icon-only, so the open menu names itself. */}
+        <p className={`px-3 pt-1.5 pb-1 font-medium md:hidden ${TEXT_ROLE.caption}`}>{text['locale.switch']}</p>
         {LOCALES.map(option => (
           <button
             key={option}
             type="button"
             lang={option}
             aria-pressed={locale === option}
-            className={OPTION_CLASS}
+            className={MENU_ITEM_CLASS}
             onClick={() => {
               setLocale(option);
               closeAndRefocus();

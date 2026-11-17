@@ -1,5 +1,5 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
-import { INPUT_CLASS } from './control-class';
+import { INPUT_CLASS, MENU_ITEM_CLASS, MENU_SURFACE_CLASS } from './control-class';
 import { FormField } from './FormField';
 import { Icon } from './Icon';
 import { useScrollbar } from './use-scrollbar';
@@ -167,7 +167,7 @@ export function ComboboxField({ label, value, options, onChange, placeholder, re
           </button>
         )}
         {listVisible && (
-          <div style={menuStyle} className="absolute inset-x-0 top-full z-40 mt-2 overflow-hidden rounded-card border border-line bg-surface py-[var(--radius-card)] shadow-overlay">
+          <div style={menuStyle} className={`${MENU_SURFACE_CLASS} absolute inset-x-0 top-full z-40 mt-2 overflow-hidden py-[var(--radius-card)]`}>
             <ul {...scrollbar} style={listStyle} id={listId} role="listbox" aria-label={label} className="scrollbar-subtle max-h-40 overflow-y-auto overscroll-contain px-1.5">
               {matchingOptions.map((option, index) => (
                 <li
@@ -176,12 +176,12 @@ export function ComboboxField({ label, value, options, onChange, placeholder, re
                   id={`${listId}-${index}`}
                   role="option"
                   aria-selected={value === option}
-                  className={`relative flex min-h-10 cursor-pointer items-center rounded-control pl-3 pr-8 text-left text-sm text-fg transition-colors hover:bg-hover active:bg-hover aria-selected:bg-accent-soft aria-selected:font-medium pointer-coarse:min-h-11 ${activeIndex === index ? 'bg-hover' : ''}`}
+                  className={`${MENU_ITEM_CLASS} ${activeIndex === index ? 'bg-hover' : ''}`}
                   onMouseDown={event => event.preventDefault()}
                   onClick={() => selectOption(option)}
                 >
                   <span className="min-w-0 truncate" title={option}>{option}</span>
-                  {value === option && <Icon name="check" className="absolute right-2 size-4 text-accent" />}
+                  <Icon name="check" className={`size-4 shrink-0 text-accent ${value === option ? '' : 'invisible'}`} />
                 </li>
               ))}
             </ul>
