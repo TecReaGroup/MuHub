@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useState, type ReactNode } from 'react';
+import { SortableItemList } from '../../features/item-sort/SortableItemList';
 import { useI18n } from '../../shared/i18n/locale';
 import type { CollectionStatus } from '../../shared/api/collection-store';
 import { EmptyNotice, ErrorBanner } from '../../shared/ui/Placeholder';
@@ -19,6 +20,8 @@ interface CollectionGridProps<Item extends { id: string }> {
   /** Enough to fill the first screen, not the real item count. */
   skeletonCount: number;
   toolbar?: ReactNode;
+  /** Drop handler for hold-and-drag reordering; ids are of the dragged item and the one it replaced. */
+  onMove: (activeId: string, overId: string) => void;
   renderItem: (item: Item) => ReactNode;
 }
 
@@ -45,6 +48,7 @@ export function CollectionGrid<Item extends { id: string }>({
   skeleton,
   skeletonCount,
   toolbar,
+  onMove,
   renderItem,
 }: CollectionGridProps<Item>) {
   const { text } = useI18n();
@@ -62,7 +66,7 @@ export function CollectionGrid<Item extends { id: string }>({
     if (status === 'unavailable') return <ErrorBanner>{text['collection.unavailable']}</ErrorBanner>;
     if (totalCount === 0) return <EmptyNotice>{text['collection.empty'](noun)}</EmptyNotice>;
     if (visibleItems.length === 0) return <EmptyNotice>{text['collection.noMatch'](noun)}</EmptyNotice>;
-    return visibleItems.map(item => <Fragment key={item.id}>{renderItem(item)}</Fragment>);
+    return <SortableItemList items={visibleItems} onMove={onMove} renderItem={renderItem} />;
   }
 
   return (

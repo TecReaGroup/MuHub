@@ -26,6 +26,7 @@ const ZH_MESSAGES = {
   'toast.saveFailed': (reason: string) => `保存失败：${reason}`,
   'toast.deleted': (title: string) => `已删除「${title}」`,
   'toast.deleteFailed': (reason: string) => `删除失败：${reason}`,
+  'toast.reorderFailed': (reason: string) => `排序保存失败：${reason}`,
 
   'collection.unavailable': '无法连接到服务，请确认后端已启动',
   'collection.empty': (noun: string) => `还没有收录任何${noun}，点击「收录」开始吧`,
@@ -99,6 +100,7 @@ const EN_MESSAGES: MessageCatalog = {
   'toast.saveFailed': reason => `Save failed: ${reason}`,
   'toast.deleted': title => `Deleted “${title}”`,
   'toast.deleteFailed': reason => `Delete failed: ${reason}`,
+  'toast.reorderFailed': reason => `Couldn't save the new order: ${reason}`,
 
   'collection.unavailable': 'Cannot reach the service. Make sure the backend is running.',
   'collection.empty': noun => `No ${noun} yet. Click “Add” to get started.`,

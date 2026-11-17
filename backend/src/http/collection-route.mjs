@@ -1,15 +1,18 @@
 import { log } from '../infrastructure/logger.mjs';
+import { parseItemOrder } from '../shared/item-order.mjs';
 import { HttpError, readJsonBody, sendJson, sendNoContent, sendRevalidatableJson } from '../shared/http.mjs';
 
 /**
  * Builds the REST router for one collection store:
- * GET/POST `basePath`, PUT/DELETE `basePath/<id>`.
+ * GET/POST `basePath`, PUT `basePath/order`, PUT/DELETE `basePath/<id>`.
  *
  * @returns {(request, response, url: URL) => Promise<boolean>} false when the request is not for this collection.
  */
 export function createCollectionRoute({ basePath, store, parseDraft, moduleName }) {
   // `<basePath>/<id>`, where id is a UUID-like token.
   const itemPattern = new RegExp(`^${basePath}/([\\w-]{1,64})$`);
+  // Also matches itemPattern, so it must be checked before item routes.
+  const orderPath = `${basePath}/order`;
 
   async function routeCollection(request, response) {
     if (request.method === 'GET') {
@@ -23,6 +26,15 @@ export function createCollectionRoute({ basePath, store, parseDraft, moduleName 
       return true;
     }
     return false;
+  }
+
+  async function routeOrder(request, response) {
+    if (request.method !== 'PUT') return false;
+    const ids = parseItemOrder(await readJsonBody(request));
+    await store.reorder(ids);
+    log('info', moduleName, 'Items reordered', { count: ids.length });
+    sendNoContent(response);
+    return true;
   }
 
   async function routeItem(request, response, id) {
@@ -44,6 +56,7 @@ export function createCollectionRoute({ basePath, store, parseDraft, moduleName 
 
   return async function routeCollectionRequest(request, response, url) {
     if (url.pathname === basePath) return routeCollection(request, response);
+    if (url.pathname === orderPath) return routeOrder(request, response);
     const itemMatch = itemPattern.exec(url.pathname);
     if (itemMatch) return routeItem(request, response, itemMatch[1]);
     return false;

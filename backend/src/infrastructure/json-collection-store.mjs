@@ -77,6 +77,19 @@ export function createJsonCollectionStore({ filePath, seedDrafts, moduleName }) 
       });
     },
 
+    /**
+     * Rearranges items to follow `ids`. Unknown ids are skipped; items missing from `ids`
+     * (e.g. created concurrently) stay in front, where `create` puts new items.
+     */
+    reorder(ids) {
+      return mutate(items => {
+        const rank = new Map(ids.map((id, index) => [id, index]));
+        const unranked = items.filter(item => !rank.has(item.id));
+        const ranked = items.filter(item => rank.has(item.id)).sort((a, b) => rank.get(a.id) - rank.get(b.id));
+        return { nextItems: [...unranked, ...ranked], outcome: undefined };
+      });
+    },
+
     /** Resolves to false when the id is unknown. */
     remove(id) {
       return mutate(items => {

@@ -17,7 +17,7 @@ const ALL_CATEGORY = '';
 
 export function SitePage() {
   const { locale, text } = useI18n();
-  const { items: sites, status, openCreator, openEditor, askRemoval, editor, removal } = useCollectionWorkspace({
+  const { items: sites, status, openCreator, openEditor, askRemoval, moveItem, editor, removal } = useCollectionWorkspace({
     collection: siteCollection,
     emptyDraft: EMPTY_SITE_DRAFT,
     toDraft: toSiteDraft,
@@ -65,6 +65,7 @@ export function SitePage() {
         layoutClassName="grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3"
         skeleton={<SiteCardSkeleton />}
         skeletonCount={6}
+        onMove={moveItem}
         renderItem={site => <SiteCard site={site} onEdit={openEditor} onRemove={askRemoval} />}
       />
 

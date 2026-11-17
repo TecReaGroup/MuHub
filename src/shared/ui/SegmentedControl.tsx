@@ -10,13 +10,11 @@ interface SegmentedControlProps {
   onChange: (option: string) => void;
 }
 
-// Below `md` the control becomes a borderless chip row that bleeds to the screen edge (cancelling
-// <main>'s gutter), so scrolled chips slide off-screen instead of being cut at an inner border.
-// From `md` up it is a padded sunken track.
-const TRACK_CLASS = 'min-w-0 -mx-4 sm:-mx-6 md:mx-0 md:max-w-full md:rounded-control md:bg-surface-sunken md:p-1';
+// Below `md` the control is a borderless chip row inside the page gutter; from `md` up, a padded sunken track.
+const TRACK_CLASS = 'min-w-0 max-w-full md:rounded-control md:bg-surface-sunken md:p-1';
 
 // The vertical padding gives the chips' hit-area overlay room inside the scroller, which clips both axes.
-const SCROLLER_CLASS = 'min-w-0 overflow-x-auto overscroll-x-contain px-4 py-1.5 [scrollbar-width:none] sm:px-6 md:p-0 [&::-webkit-scrollbar]:hidden';
+const SCROLLER_CLASS = 'min-w-0 overflow-x-auto overscroll-x-contain py-1.5 [scrollbar-width:none] md:py-0 [&::-webkit-scrollbar]:hidden';
 
 // Chips stay 32px tall visually; the ::after overlay extends the touch target to 44px (WCAG 2.5.5).
 const OPTION_CLASS = [

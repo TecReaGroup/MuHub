@@ -20,6 +20,16 @@ export interface CollectionStore<Item, Draft> {
   create: (draft: Draft) => Promise<Item>;
   update: (id: string, draft: Draft) => Promise<Item>;
   remove: (id: string) => Promise<void>;
+  /** Persists the full item order; applied optimistically and rolled back on failure. */
+  reorder: (ids: string[]) => Promise<void>;
+}
+
+/** Mirrors the backend store: items missing from `ids` (e.g. just created) stay in front. */
+function orderByIds<Item extends { id: string }>(items: Item[], ids: string[]): Item[] {
+  const rank = new Map(ids.map((id, index) => [id, index]));
+  const unranked = items.filter(item => !rank.has(item.id));
+  const ranked = items.filter(item => rank.has(item.id)).sort((a, b) => rank.get(a.id)! - rank.get(b.id)!);
+  return [...unranked, ...ranked];
 }
 
 /**
@@ -116,6 +126,17 @@ export function createCollectionStore<Item extends { id: string }, Draft>(
     async remove(id) {
       await requestJson<void>(itemPath(id), { method: 'DELETE' });
       applyMutation(items => items.filter(existing => existing.id !== id));
+    },
+
+    async reorder(ids) {
+      const previousIds = snapshot.items.map(item => item.id);
+      applyMutation(items => orderByIds(items, ids));
+      try {
+        await requestJson<void>(`${endpoint}/order`, { method: 'PUT', body: JSON.stringify({ ids }) });
+      } catch (error) {
+        applyMutation(items => orderByIds(items, previousIds));
+        throw error;
+      }
     },
   };
 }
