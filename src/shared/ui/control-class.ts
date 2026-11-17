@@ -55,7 +55,8 @@ export const MENU_ITEM_CLASS = 'flex min-h-9 w-full cursor-pointer items-center 
 
 // Accent border plus a soft glow on focus; shape is chosen by the exported tiers below.
 // 16px text on touch screens: iOS zooms the page into any focused field smaller than that.
-const FIELD_SURFACE_CLASS = 'w-full min-w-0 border border-line bg-surface text-sm text-fg transition-[border-color,box-shadow] placeholder:text-fg-subtle hover:border-line-strong focus:border-accent focus:ring-3 focus:ring-accent-soft focus:outline-none pointer-coarse:text-base';
+// The zoom check ignores the placeholder, so it stays 14px and long hints fit narrow sheets.
+const FIELD_SURFACE_CLASS = 'w-full min-w-0 border border-line bg-surface text-sm text-fg transition-[border-color,box-shadow] placeholder:text-fg-subtle hover:border-line-strong focus:border-accent focus:ring-3 focus:ring-accent-soft focus:outline-none pointer-coarse:text-base pointer-coarse:placeholder:text-sm';
 
 /** Text inputs and anything that must look like one. */
 export const FIELD_CLASS = `${FIELD_SURFACE_CLASS} rounded-control [--scrollbar-inset:var(--radius-control)]`;

@@ -244,9 +244,12 @@
     transform: none;
   }
 
+  /*
+   * NOTE: no backdrop-filter here. Any value (even blur(0)) makes Chromium composite the ::backdrop
+   * as its own layer, whose first frame samples an empty (black) backdrop and flashes on open/close.
+   */
   .modal-dialog::backdrop {
     background-color: transparent;
-    backdrop-filter: blur(4px);
     transition-property: background-color, overlay, display;
     transition-duration: var(--transition-duration-medium);
     transition-behavior: allow-discrete;
