@@ -1,5 +1,5 @@
 import { API_ENDPOINT } from '../../shared/api/api-endpoint';
-import { createCollectionStore } from '../../shared/api/collection-store';
+import { createCollectionStore, prependItem } from '../../shared/api/collection-store';
 
 export interface Diagram {
   id: string;
@@ -14,7 +14,7 @@ export type DiagramDraft = Pick<Diagram, 'title' | 'imageUrl' | 'description'>;
 
 export const EMPTY_DIAGRAM_DRAFT: DiagramDraft = { title: '', imageUrl: '', description: '' };
 
-export const diagramCollection = createCollectionStore<Diagram, DiagramDraft>(API_ENDPOINT.diagram, 'Diagram');
+export const diagramCollection = createCollectionStore<Diagram, DiagramDraft>(API_ENDPOINT.diagram, 'Diagram', prependItem);
 
 export function toDiagramDraft({ title, imageUrl, description }: Diagram): DiagramDraft {
   return { title, imageUrl, description };

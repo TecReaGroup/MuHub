@@ -14,7 +14,14 @@ export type SiteDraft = Pick<Site, 'title' | 'url' | 'category' | 'description'>
 
 export const EMPTY_SITE_DRAFT: SiteDraft = { title: '', url: '', category: '', description: '' };
 
-export const siteCollection = createCollectionStore<Site, SiteDraft>(API_ENDPOINT.site, 'Site');
+export const siteCollection = createCollectionStore<Site, SiteDraft>(API_ENDPOINT.site, 'Site', insertSiteInCategory);
+
+/** Mirrors the backend: appending within the category keeps the derived category order stable. */
+function insertSiteInCategory(sites: Site[], site: Site): Site[] {
+  const lastIndex = sites.map(existing => existing.category).lastIndexOf(site.category);
+  const insertAt = lastIndex === -1 ? sites.length : lastIndex + 1;
+  return [...sites.slice(0, insertAt), site, ...sites.slice(insertAt)];
+}
 
 export function toSiteDraft({ title, url, category, description }: Site): SiteDraft {
   return { title, url, category, description };

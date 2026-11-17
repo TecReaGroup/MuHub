@@ -24,6 +24,10 @@ export interface CollectionStore<Item, Draft> {
   reorder: (ids: string[]) => Promise<void>;
 }
 
+export function prependItem<Item>(items: Item[], item: Item): Item[] {
+  return [item, ...items];
+}
+
 /** Mirrors the backend store: items missing from `ids` (e.g. just created) stay in front. */
 function orderByIds<Item extends { id: string }>(items: Item[], ids: string[]): Item[] {
   const rank = new Map(ids.map((id, index) => [id, index]));
@@ -38,10 +42,12 @@ function orderByIds<Item extends { id: string }>(items: Item[], ids: string[]): 
  * Shared by every subscriber: revisiting a page renders the cached list immediately, concurrent
  * loads share one request, mutations write through, and a stale list refreshes in the background
  * on mount or when the tab becomes visible. The backend's ETag makes those refreshes a cheap 304.
+ * `insertItem` must mirror the backend store's insertion so a created item does not jump on refresh.
  */
 export function createCollectionStore<Item extends { id: string }, Draft>(
   endpoint: string,
   moduleName: string,
+  insertItem: (items: Item[], item: Item) => Item[],
 ): CollectionStore<Item, Draft> {
   const listeners = new Set<() => void>();
   let snapshot: CollectionSnapshot<Item> = { items: [], status: 'loading' };
@@ -113,7 +119,7 @@ export function createCollectionStore<Item extends { id: string }, Draft>(
 
     async create(draft) {
       const item = await requestJson<Item>(endpoint, { method: 'POST', body: JSON.stringify(draft) });
-      applyMutation(items => [item, ...items.filter(existing => existing.id !== item.id)]);
+      applyMutation(items => insertItem(items.filter(existing => existing.id !== item.id), item));
       return item;
     },
 

@@ -3,11 +3,12 @@ import { paths } from '../../config/paths.mjs';
 import { createCollectionRoute } from '../../http/collection-route.mjs';
 import { createJsonCollectionStore } from '../../infrastructure/json-collection-store.mjs';
 import { parseSiteDraft } from './site-draft.mjs';
+import { insertSiteInCategory } from './site-insertion.mjs';
 import { SEED_SITE_DRAFTS } from './site-seed.mjs';
 
 export const routeSiteRequest = createCollectionRoute({
   basePath: '/api/site',
-  store: createJsonCollectionStore({ filePath: paths.siteFile, seedDrafts: environment.isProduction ? [] : SEED_SITE_DRAFTS, moduleName: 'Site' }),
+  store: createJsonCollectionStore({ filePath: paths.siteFile, seedDrafts: environment.isProduction ? [] : SEED_SITE_DRAFTS, moduleName: 'Site', insertItem: insertSiteInCategory }),
   parseDraft: parseSiteDraft,
   moduleName: 'Site',
 });

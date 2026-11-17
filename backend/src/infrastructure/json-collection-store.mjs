@@ -3,13 +3,18 @@ import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { log } from './logger.mjs';
 
+export function prependItem(items, item) {
+  return [item, ...items];
+}
+
 /**
  * A list of records persisted as one JSON file, seeded on first read.
  *
  * Mutations run one at a time so concurrent requests never overwrite each other,
  * and each write goes to a temp file first so a crash cannot leave a half-written file.
+ * `insertItem(items, item)` decides where a created item lands and returns the new list.
  */
-export function createJsonCollectionStore({ filePath, seedDrafts, moduleName }) {
+export function createJsonCollectionStore({ filePath, seedDrafts, moduleName, insertItem }) {
   let itemsPromise = null;
   let mutationQueue = Promise.resolve();
 
@@ -63,7 +68,7 @@ export function createJsonCollectionStore({ filePath, seedDrafts, moduleName }) 
     create(draft) {
       return mutate(items => {
         const item = buildItem(draft);
-        return { nextItems: [item, ...items], outcome: item };
+        return { nextItems: insertItem(items, item), outcome: item };
       });
     },
 
@@ -79,7 +84,7 @@ export function createJsonCollectionStore({ filePath, seedDrafts, moduleName }) 
 
     /**
      * Rearranges items to follow `ids`. Unknown ids are skipped; items missing from `ids`
-     * (e.g. created concurrently) stay in front, where `create` puts new items.
+     * (e.g. created concurrently) stay in front.
      */
     reorder(ids) {
       return mutate(items => {
