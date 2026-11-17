@@ -97,7 +97,7 @@ try {
   mkdirSync(paths.logRoot, { recursive: true });
 } catch (error) {
   fileLoggingAvailable = false;
-  writeConsole('error', formatEntry('error', 'Logger', '无法创建日志目录', {
+  writeConsole('error', formatEntry('error', 'Logger', 'Failed to create log directory', {
     path: paths.logRoot,
     error: serializeError(error),
   }, new Date()));
@@ -114,7 +114,7 @@ export function log(level, module, message, fields = {}) {
     appendFileSync(logFile, `${entry}\n`, 'utf8');
   } catch (error) {
     fileLoggingAvailable = false;
-    writeConsole('error', formatEntry('error', 'Logger', '无法写入日志文件', {
+    writeConsole('error', formatEntry('error', 'Logger', 'Failed to write log file', {
       path: logFile,
       error: serializeError(error),
     }, new Date()));

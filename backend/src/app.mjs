@@ -12,7 +12,7 @@ export function createApp() {
       if (socket.writable) socket.end();
       return;
     }
-    log('warn', 'HTTP', '客户端连接异常', { error: serializeError(error) });
+    log('warn', 'HTTP', 'Client connection error', { error: serializeError(error) });
     if (socket.writable) socket.end('HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n');
   });
   return server;
