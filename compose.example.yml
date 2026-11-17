@@ -1,5 +1,7 @@
 services:
   muhub:
+    image: muhub
+    container_name: muhub
     build:
       context: .
       dockerfile: Dockerfile
