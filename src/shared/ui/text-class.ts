@@ -9,7 +9,7 @@ export const TEXT_ROLE = {
   panelTitle: 'text-xs font-semibold text-fg-muted',
   cardTitle: 'truncate text-[0.9375rem] font-medium text-fg',
   // Fixed 20px lines so a two-line clamp has a predictable height for skeletons.
-  cardDescription: 'line-clamp-2 text-sm leading-5 break-words text-fg-muted',
+  cardDescription: 'line-clamp-2 whitespace-pre-line text-sm leading-5 break-words text-fg-muted',
   body: 'text-sm leading-relaxed text-fg-muted',
   label: 'text-xs font-medium text-fg-muted',
   meta: 'text-xs text-fg-subtle',
