@@ -1,9 +1,11 @@
 services:
-  app:
+  muhub:
     build:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
+    # Overrides the image's `USER node` so bind mounts created by Docker as root stay writable.
+    user: "root"
     ports:
       - "8787:8787"
     volumes:
@@ -11,4 +13,5 @@ services:
       - ./backend/data/store:/app/backend/data/store
     environment:
       NODE_ENV: production
+      TZ: Asia/Singapore
       ACCESS_PASSWORD: ${ACCESS_PASSWORD:-}
