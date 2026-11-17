@@ -35,7 +35,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         ref={toastRef}
         role="status"
         aria-live="polite"
-        className={`pointer-events-none inset-auto right-6 bottom-6 m-0 max-w-[min(24rem,calc(100vw-3rem))] rounded-control border-0 bg-accent px-4 py-2.5 text-xs font-medium text-on-accent shadow-overlay transition-[opacity,translate] duration-medium starting:translate-y-2 starting:opacity-0 ${toast.visible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'}`}
+        className={`pointer-events-none inset-x-4 bottom-[calc(var(--tab-bar-height)+env(safe-area-inset-bottom)+0.75rem)] mx-auto w-fit max-w-[min(24rem,calc(100vw-2rem))] rounded-control border-0 bg-accent px-4 py-2.5 text-center text-xs font-medium text-on-accent shadow-overlay transition-[opacity,translate] duration-medium starting:translate-y-2 starting:opacity-0 md:inset-x-auto md:right-6 md:bottom-6 md:mx-0 md:text-left ${toast.visible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'}`}
       >
         {toast.message}
       </div>

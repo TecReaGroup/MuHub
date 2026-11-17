@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, type MutableRefObject, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, type MutableRefObject, type ReactNode } from 'react';
 
 const AddActionContext = createContext<MutableRefObject<() => void> | null>(null);
 
@@ -8,16 +8,22 @@ export function AddActionProvider({ children }: { children: ReactNode }) {
   return <AddActionContext.Provider value={addRef}>{children}</AddActionContext.Provider>;
 }
 
-export function useAddActionRef(): MutableRefObject<() => void> {
+function useAddActionRef(): MutableRefObject<() => void> {
   const addRef = useContext(AddActionContext);
   if (!addRef) throw new Error('Add action hooks must be used inside AddActionProvider');
   return addRef;
 }
 
-/** Registers what the shell's add button does while this page is shown. */
+/** For shell controls: runs whatever the current page registered via `usePageAddAction`. */
+export function useAddTrigger(): () => void {
+  const addRef = useAddActionRef();
+  return useCallback(() => addRef.current(), [addRef]);
+}
+
+/** Registers what the shell's add controls do while this page is shown. */
 export function usePageAddAction(onAdd: () => void) {
   const addRef = useAddActionRef();
-  // Latest closure every render, so the button always sees current page state.
+  // Latest closure every render, so the controls always see current page state.
   useEffect(() => {
     addRef.current = onAdd;
   });

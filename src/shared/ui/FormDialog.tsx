@@ -17,10 +17,10 @@ export function FormDialog({ open, title, isSaving, onSubmit, onClose, children 
   const { text } = useI18n();
   return (
     <Modal open={open} title={title} onClose={onClose}>
-      <form onSubmit={onSubmit} className="space-y-4">
+      <form autoComplete="off" onSubmit={onSubmit} className="space-y-4">
         {children}
         <ModalActions>
-          <Button size="lg" onClick={onClose}>{text['common.cancel']}</Button>
+          <Button size="lg" className="mr-auto" onClick={onClose}>{text['common.cancel']}</Button>
           <SubmitButton pending={isSaving}>{text['common.save']}</SubmitButton>
         </ModalActions>
       </form>

@@ -3,7 +3,8 @@
  * three colors (fg, fg-muted, fg-subtle). Add a role here before inventing one at a call site.
  */
 export const TEXT_ROLE = {
-  pageTitle: 'text-2xl font-semibold text-fg',
+  pageTitle: 'text-xl leading-7 font-semibold text-fg sm:text-2xl sm:leading-8',
+  pageSubtitle: 'text-xs leading-5 text-fg-muted sm:text-sm sm:leading-relaxed',
   dialogTitle: 'text-base font-semibold text-fg',
   panelTitle: 'text-xs font-semibold text-fg-muted',
   cardTitle: 'truncate text-[0.9375rem] font-medium text-fg',

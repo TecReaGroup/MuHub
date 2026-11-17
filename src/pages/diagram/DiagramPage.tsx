@@ -36,7 +36,10 @@ export function DiagramPage() {
     <>
       <PageHeader
         title={text['diagram.pageTitle']}
-        subtitle={text['diagram.subtitle'](diagrams.length)}
+        subtitle={<>
+          <span className="sm:hidden">{text['diagram.count'](diagrams.length)}</span>
+          <span className="hidden sm:inline">{text['diagram.subtitle'](diagrams.length)}</span>
+        </>}
       />
 
       <CollectionGrid

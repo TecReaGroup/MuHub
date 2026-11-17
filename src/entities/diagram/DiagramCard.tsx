@@ -6,7 +6,7 @@ import type { Diagram } from './diagram';
 import { DiagramImage } from './DiagramImage';
 
 // Media tile: the framed preview is the card; title and actions sit below it on the canvas.
-const PREVIEW_FRAME_CLASS = 'relative block w-full overflow-hidden rounded-card border border-line bg-diagram-canvas p-5';
+const PREVIEW_FRAME_CLASS = 'relative block w-full overflow-hidden rounded-card border border-line bg-diagram-canvas p-4 sm:p-5';
 
 interface DiagramCardProps {
   diagram: Diagram;

@@ -1,14 +1,14 @@
 import { useEffect, useState, type ComponentType } from 'react';
 import { DiagramPage } from '../pages/diagram/DiagramPage';
 import { SitePage } from '../pages/site/SitePage';
-import type { SidebarRoute } from '../widgets/sidebar/Sidebar';
+import type { NavRoute } from '../shared/ui/nav-route';
 
 export const HUB_ROUTES = [
-  { id: 'site', labelKey: 'site.pageTitle', icon: 'globe', Page: SitePage },
+  { id: 'site', labelKey: 'site.pageTitle', icon: 'link', Page: SitePage },
   { id: 'diagram', labelKey: 'diagram.pageTitle', icon: 'layers', Page: DiagramPage },
-] as const satisfies readonly (SidebarRoute & { Page: ComponentType })[];
+] as const satisfies readonly (NavRoute & { Page: ComponentType })[];
 
-export type HubRoute = (typeof HUB_ROUTES)[number];
+type HubRoute = (typeof HUB_ROUTES)[number];
 
 function readRouteFromHash(): HubRoute {
   return HUB_ROUTES.find(route => `#${route.id}` === window.location.hash) ?? HUB_ROUTES[0];

@@ -44,7 +44,10 @@ export function SitePage() {
     <>
       <PageHeader
         title={text['site.pageTitle']}
-        subtitle={`${text['site.count'](sites.length)} · ${text[greetingKeyFor(now)]} · ${formatToday(now, locale)}`}
+        subtitle={<>
+          {text['site.count'](sites.length)} · {text[greetingKeyFor(now)]}
+          <span className="hidden sm:inline"> · {formatToday(now, locale)}</span>
+        </>}
       />
 
       <CollectionGrid

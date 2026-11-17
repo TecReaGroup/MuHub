@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import { useI18n } from '../../shared/i18n/locale';
 import { SEARCH_FIELD_CLASS } from '../../shared/ui/control-class';
 import { Icon } from '../../shared/ui/Icon';
@@ -14,10 +14,11 @@ function isShortcutBlocked(target: EventTarget | null): boolean {
 }
 
 /** The global search box; the current page decides what Enter does via `usePageSearch`. */
-export function SearchField() {
+export const SearchField = forwardRef<HTMLInputElement>(function SearchField(_, forwardedRef) {
   const { text } = useI18n();
   const { query, setQuery, submitRef } = useSearchContext();
   const inputRef = useRef<HTMLInputElement>(null);
+  useImperativeHandle(forwardedRef, () => inputRef.current!);
 
   useEffect(() => {
     function focusOnShortcut(event: KeyboardEvent) {
@@ -35,6 +36,7 @@ export function SearchField() {
       <input
         ref={inputRef}
         type="search"
+        enterKeyHint="search"
         value={query}
         aria-label={text['common.search']}
         placeholder={text['common.searchPlaceholder']}
@@ -47,11 +49,11 @@ export function SearchField() {
             event.currentTarget.blur();
           }
         }}
-        className={`${SEARCH_FIELD_CLASS} h-10 pr-10 pl-11`}
+        className={`${SEARCH_FIELD_CLASS} pr-10 pl-11`}
       />
       {!query && (
-        <Kbd className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2">{FOCUS_SHORTCUT_KEY}</Kbd>
+        <Kbd className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 pointer-coarse:hidden">{FOCUS_SHORTCUT_KEY}</Kbd>
       )}
     </div>
   );
-}
+});

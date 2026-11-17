@@ -66,7 +66,7 @@ export function CollectionGrid<Item extends { id: string }>({
   }
 
   return (
-    <section className="w-full space-y-6">
+    <section className="w-full space-y-4 sm:space-y-6">
       {toolbar && <div className="flex flex-wrap items-center gap-3">{toolbar}</div>}
       <div aria-busy={status === 'loading'} className={`grid ${status === 'loading' ? '' : 'animate-fade-in'} ${layoutClassName}`}>
         {renderBody()}

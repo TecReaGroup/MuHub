@@ -40,7 +40,7 @@ export function SiteCard({ site, onEdit, onRemove }: SiteCardProps) {
       <p className="mt-3 line-clamp-2 min-h-10 flex-1 text-sm leading-5 break-words text-fg-muted">{site.description}</p>
 
       {/* Sits above the stretched link; only the action buttons take pointer events. */}
-      <footer className="pointer-events-none relative z-10 mt-3 flex h-7 items-center justify-between gap-2">
+      <footer className="pointer-events-none relative z-10 mt-3 flex min-h-7 items-center justify-between gap-2">
         <span className="max-w-full truncate rounded-tight bg-surface-sunken px-2 py-0.5 text-caption font-medium text-fg-muted">
           {site.category}
         </span>
@@ -70,7 +70,7 @@ export function SiteCardSkeleton() {
         <SkeletonBar className="h-3 w-full" />
         <SkeletonBar className="h-3 w-3/4" />
       </div>
-      <div className="mt-3 flex h-7 items-center">
+      <div className="mt-3 flex h-7 items-center pointer-coarse:h-11">
         <SkeletonBar className="h-4 w-12" />
       </div>
     </div>

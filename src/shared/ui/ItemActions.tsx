@@ -6,7 +6,7 @@ import { Icon } from './Icon';
  * Hover-reveal: hidden until the parent `group` is hovered or holds focus.
  * Only devices that can hover hide it; touch screens always show it.
  */
-export const HOVER_REVEAL_CLASS = 'transition-opacity [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-focus-within:opacity-100';
+const HOVER_REVEAL_CLASS = 'transition-opacity [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-focus-within:opacity-100';
 
 interface ItemActionsProps {
   itemTitle: string;

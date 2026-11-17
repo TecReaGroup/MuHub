@@ -4,10 +4,15 @@ import { IconButton } from './Button';
 import { Icon } from './Icon';
 import { TEXT_ROLE } from './text-class';
 
-// Initial focus: explicit opt-in first, then the first text field, then the browser default.
+// Initial focus: explicit opt-in first, then the first text field, then the dialog itself.
 const INITIAL_FOCUS_SELECTORS = ['[data-autofocus]', 'input, textarea'];
 
 function focusInitialElement(dialog: HTMLDialogElement) {
+  // On touch devices, focusing a text input immediately pops the virtual keyboard over the dialog.
+  if (window.matchMedia('(pointer: coarse)').matches) {
+    dialog.focus();
+    return;
+  }
   for (const selector of INITIAL_FOCUS_SELECTORS) {
     const element = dialog.querySelector<HTMLElement>(selector);
     if (element) {
@@ -15,6 +20,7 @@ function focusInitialElement(dialog: HTMLDialogElement) {
       return;
     }
   }
+  dialog.focus();
 }
 
 interface DialogFrameProps {
@@ -45,11 +51,34 @@ export function DialogFrame({ open, onClose, labelledBy, describedBy, className,
     }
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return;
+    const dialog = dialogRef.current!;
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+
+    const updateViewport = () => {
+      dialog.style.setProperty('--visual-viewport-height', `${viewport.height}px`);
+      dialog.style.setProperty('--visual-viewport-top', `${viewport.offsetTop}px`);
+      if (dialog.contains(document.activeElement) && document.activeElement instanceof HTMLElement) {
+        document.activeElement.scrollIntoView({ block: 'nearest' });
+      }
+    };
+    updateViewport();
+    viewport.addEventListener('resize', updateViewport);
+    viewport.addEventListener('scroll', updateViewport);
+    return () => {
+      viewport.removeEventListener('resize', updateViewport);
+      viewport.removeEventListener('scroll', updateViewport);
+    };
+  }, [open]);
+
   return (
     // The dialog box has no padding of its own, so a click targeting it can only be the ::backdrop.
     // Requiring the press to start there too keeps a text-selection drag from closing it.
     <dialog
       ref={dialogRef}
+      tabIndex={-1}
       aria-labelledby={labelledBy}
       aria-describedby={describedBy}
       onClose={() => open && onClose()}
@@ -57,7 +86,7 @@ export function DialogFrame({ open, onClose, labelledBy, describedBy, className,
       onClick={event => {
         if (pressStartedOnBackdropRef.current && event.target === event.currentTarget) onClose();
       }}
-      className="modal-dialog m-auto max-h-none max-w-none overflow-visible border-0 bg-transparent p-0 text-fg"
+      className="modal-dialog m-auto max-w-none overflow-y-auto overscroll-contain border-0 bg-transparent p-0 text-fg focus:outline-none"
     >
       <div className={`flex flex-col rounded-dialog border border-line bg-surface shadow-overlay ${className}`}>
         {children}
@@ -78,8 +107,8 @@ export function Modal({ open, title, onClose, children }: ModalProps) {
   const { text } = useI18n();
   const titleId = useId();
   return (
-    <DialogFrame open={open} onClose={onClose} labelledBy={titleId} className="w-[min(28rem,calc(100vw-2rem))] p-6">
-      <header className="mb-5 flex items-center justify-between gap-4">
+    <DialogFrame open={open} onClose={onClose} labelledBy={titleId} className="w-[min(28rem,calc(100vw-1.5rem))] p-4 sm:w-[min(28rem,calc(100vw-2rem))] sm:p-6">
+      <header className="mb-4 flex items-center justify-between gap-4 sm:mb-5">
         <h2 id={titleId} className={TEXT_ROLE.dialogTitle}>{title}</h2>
         <IconButton label={text['common.close']} onClick={onClose} className="-mr-2">
           <Icon name="close" />
