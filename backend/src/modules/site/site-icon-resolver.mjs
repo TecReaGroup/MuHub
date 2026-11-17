@@ -7,7 +7,17 @@ const RESOLVED_TTL_MS = 24 * 60 * 60 * 1000;
 const MISSING_TTL_MS = 60 * 60 * 1000;
 const MAX_CACHE_ENTRIES = 500;
 // Some self-hosted apps reject requests without a browser-like User-Agent.
-const REQUEST_HEADERS = { 'User-Agent': 'Mozilla/5.0 (compatible; MuHub icon resolver)' };
+const REQUEST_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (compatible; MuHub icon resolver)',
+  Accept: 'text/html,application/xhtml+xml,image/avif,image/webp,image/*,*/*;q=0.8',
+};
+// Tried after the site's own icons, for sites behind bot protection (e.g. Cloudflare challenges server IPs).
+// Both answer unknown domains with 404, so a generic globe is never mistaken for a logo.
+// NOTE: these services learn the hostnames of saved sites; remove them to keep lookups private.
+const PUBLIC_ICON_SERVICES = [
+  hostname => `https://www.google.com/s2/favicons?domain=${encodeURIComponent(hostname)}&sz=128`,
+  hostname => `https://icons.duckduckgo.com/ip3/${encodeURIComponent(hostname)}.ico`,
+];
 // Rank when `sizes` is absent: apple-touch-icon is 180px by convention, a bare icon is usually a 16-32px .ico.
 const DEFAULT_APPLE_TOUCH_SIZE = 180;
 const DEFAULT_ICON_SIZE = 32;
@@ -75,7 +85,7 @@ function iconRank({ rel, sizes, type, href }) {
   return rel.includes('apple-touch-icon') ? DEFAULT_APPLE_TOUCH_SIZE : DEFAULT_ICON_SIZE;
 }
 
-/** Icon URLs declared by the page, best first, with `/favicon.ico` as the last resort. */
+/** Icon URLs declared by the page, best first, then `/favicon.ico`, then public icon services. */
 function listIconCandidates(html, pageUrl) {
   const candidates = [];
   for (const [tag] of html.matchAll(LINK_TAG_PATTERN)) {
@@ -91,14 +101,17 @@ function listIconCandidates(html, pageUrl) {
   }
   candidates.push({ url: new URL('/favicon.ico', pageUrl).href, rank: FALLBACK_ICON_SIZE });
   candidates.sort((left, right) => right.rank - left.rank);
-  return [...new Set(candidates.map(candidate => candidate.url))];
+  const { hostname } = new URL(pageUrl);
+  return [...new Set([...candidates.map(candidate => candidate.url), ...PUBLIC_ICON_SERVICES.map(serviceUrl => serviceUrl(hostname))])];
 }
 
 async function fetchPageHtml(siteUrl) {
   try {
     const response = await fetchWithTimeout(siteUrl);
-    if (!response.ok || !response.headers.get('content-type')?.includes('html')) {
+    const contentType = response.headers.get('content-type') ?? '';
+    if (!response.ok || !contentType.includes('html')) {
       await response.body?.cancel().catch(() => {});
+      log('warn', 'SiteIcon', 'Site page unusable', { url: siteUrl, statusCode: response.status, contentType });
       return { html: '', pageUrl: response.url || siteUrl };
     }
     return { html: await readHtmlHead(response), pageUrl: response.url || siteUrl };

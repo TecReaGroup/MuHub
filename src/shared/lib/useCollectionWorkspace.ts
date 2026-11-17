@@ -2,6 +2,7 @@ import { useCallback, useState, useSyncExternalStore } from 'react';
 import type { CollectionStore } from '../api/collection-store';
 import { useI18n } from '../i18n/locale';
 import { useToast } from '../ui/Toast';
+import { placeId, type ItemPlacement } from './item-placement';
 import { log, serializeError } from './logger';
 
 interface WorkspaceOptions<Item, Draft> {
@@ -76,15 +77,9 @@ export function useCollectionWorkspace<Item extends { id: string; title: string 
     }
   }
 
-  /** Moves `activeId` into `overId`'s slot; on a filtered view this matches the visible move too. */
-  async function moveItem(activeId: string, overId: string) {
-    const ids = items.map(item => item.id);
-    const fromIndex = ids.indexOf(activeId);
-    const toIndex = ids.indexOf(overId);
-    if (fromIndex === toIndex) return;
-    ids.splice(toIndex, 0, ...ids.splice(fromIndex, 1));
+  async function placeItem(placement: ItemPlacement) {
     try {
-      await collection.reorder(ids);
+      await collection.reorder(placeId(items.map(item => item.id), placement));
     } catch (error) {
       log('error', moduleName, 'Failed to reorder items', serializeError(error));
       showToast(text['toast.reorderFailed'](failureReason(error)));
@@ -97,7 +92,7 @@ export function useCollectionWorkspace<Item extends { id: string; title: string 
     openCreator,
     openEditor,
     askRemoval,
-    moveItem,
+    placeItem,
     editor: { ...editor, close: closeEditor, save: saveDraft },
     removal: { ...removal, close: closeRemoval, confirm: confirmRemoval },
   };

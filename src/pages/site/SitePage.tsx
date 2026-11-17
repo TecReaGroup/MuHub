@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
-import { EMPTY_SITE_DRAFT, siteCollection, siteMatchesQuery, toSiteDraft } from '../../entities/site/site';
+import { EMPTY_SITE_DRAFT, siteCategories, siteCollection, siteMatchesQuery, toSiteDraft } from '../../entities/site/site';
 import { SiteCard, SiteCardSkeleton } from '../../entities/site/SiteCard';
 import { usePageAddAction } from '../../features/add-action/add-action-context';
 import { usePageSearch } from '../../features/search/search-context';
+import { useSiteArrangement } from '../../features/site-arrange/use-site-arrangement';
 import { SiteFormModal } from '../../features/site-form/SiteFormModal';
 import { useI18n } from '../../shared/i18n/locale';
 import { useCollectionWorkspace } from '../../shared/lib/useCollectionWorkspace';
@@ -17,7 +18,7 @@ const ALL_CATEGORY = '';
 
 export function SitePage() {
   const { locale, text } = useI18n();
-  const { items: sites, status, openCreator, openEditor, askRemoval, moveItem, editor, removal } = useCollectionWorkspace({
+  const { items: sites, status, openCreator, openEditor, askRemoval, editor, removal } = useCollectionWorkspace({
     collection: siteCollection,
     emptyDraft: EMPTY_SITE_DRAFT,
     toDraft: toSiteDraft,
@@ -26,16 +27,20 @@ export function SitePage() {
   const query = usePageSearch(openTopMatch);
   usePageAddAction(() => openCreator(activeCategory === ALL_CATEGORY ? {} : { category: activeCategory }));
   const [now] = useState(() => new Date());
+  const { moveSite, moveCategory } = useSiteArrangement(sites);
 
-  // Categories appear in the order their first site does.
-  const categories = useMemo(() => [...new Set(sites.map(site => site.category))], [sites]);
+  const categories = useMemo(() => siteCategories(sites), [sites]);
   // Falls back to "all" once the selected category loses its last site.
   const activeCategory = categories.includes(selectedCategory) ? selectedCategory : ALL_CATEGORY;
-  const visibleSites = sites.filter(site =>
-    (activeCategory === ALL_CATEGORY || site.category === activeCategory) && siteMatchesQuery(site, query));
+  const matchingSites = sites.filter(site => siteMatchesQuery(site, query));
+  const visibleSections = (activeCategory === ALL_CATEGORY ? categories : [activeCategory]).map(category => ({
+    id: category,
+    title: category,
+    items: matchingSites.filter(site => site.category === category),
+  }));
 
   function openTopMatch() {
-    const [topMatch] = visibleSites;
+    const [topMatch] = visibleSections.flatMap(section => section.items);
     if (query.trim() && topMatch) window.open(topMatch.url, '_blank', 'noopener,noreferrer');
   }
 
@@ -47,9 +52,6 @@ export function SitePage() {
           {text['site.count'](sites.length)} · {text[greetingKeyFor(now)]}
           <span className="hidden sm:inline"> · {formatToday(now, locale)}</span>
         </>}
-      />
-
-      <CollectionGrid
         toolbar={categories.length > 0 && (
           <SegmentedControl
             label={text['site.category']}
@@ -58,14 +60,18 @@ export function SitePage() {
             onChange={setSelectedCategory}
           />
         )}
+      />
+
+      <CollectionGrid
         status={status}
         totalCount={sites.length}
-        visibleItems={visibleSites}
+        visibleSections={visibleSections}
         noun={text['site.noun']}
         layoutClassName="grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3"
         skeleton={<SiteCardSkeleton />}
         skeletonCount={6}
-        onMove={moveItem}
+        onMoveItem={moveSite}
+        onMoveSection={moveCategory}
         renderItem={site => <SiteCard site={site} onEdit={openEditor} onRemove={askRemoval} />}
       />
 

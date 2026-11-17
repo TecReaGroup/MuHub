@@ -13,7 +13,7 @@ import { PageHeader } from '../../widgets/page-header/PageHeader';
 
 export function DiagramPage() {
   const { text } = useI18n();
-  const { items: diagrams, status, openCreator, openEditor, askRemoval, moveItem, editor, removal } = useCollectionWorkspace({
+  const { items: diagrams, status, openCreator, openEditor, askRemoval, placeItem, editor, removal } = useCollectionWorkspace({
     collection: diagramCollection,
     emptyDraft: EMPTY_DIAGRAM_DRAFT,
     toDraft: toDiagramDraft,
@@ -44,12 +44,12 @@ export function DiagramPage() {
       <CollectionGrid
         status={status}
         totalCount={diagrams.length}
-        visibleItems={visibleDiagrams}
+        visibleSections={[{ id: 'diagram', items: visibleDiagrams }]}
         noun={text['diagram.noun']}
         layoutClassName="grid-cols-1 gap-x-7 gap-y-8 md:grid-cols-2 md:gap-y-10"
         skeleton={<DiagramCardSkeleton />}
         skeletonCount={4}
-        onMove={moveItem}
+        onMoveItem={placeItem}
         renderItem={diagram => (
           <DiagramCard diagram={diagram} onPreview={openPreview} onEdit={openEditor} onRemove={askRemoval} />
         )}
