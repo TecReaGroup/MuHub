@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import { useI18n } from '../../shared/i18n/locale';
+import { diagramImageSrc } from './diagram';
 
 interface DiagramImageProps {
   src: string;
@@ -22,7 +23,7 @@ export function DiagramImage({ src, alt, className = '', style }: DiagramImagePr
     // draw.io exports use `color-scheme: light dark` + light-dark(), which follow the OS theme.
     // Pinning the img to light renders the authored palette on the white canvas behind it.
     <img
-      src={src}
+      src={diagramImageSrc(src)}
       alt={alt}
       loading="lazy"
       draggable={false}

@@ -1,16 +1,11 @@
 import { log, serializeError } from '../../infrastructure/logger.mjs';
+import { fetchRemote, fetchRemoteImage } from '../../infrastructure/remote-fetch.mjs';
 
-const FETCH_TIMEOUT_MS = 5000;
 const MAX_HTML_BYTES = 512 * 1024;
 const MAX_ICON_BYTES = 1024 * 1024;
 const RESOLVED_TTL_MS = 24 * 60 * 60 * 1000;
 const MISSING_TTL_MS = 60 * 60 * 1000;
 const MAX_CACHE_ENTRIES = 500;
-// Some self-hosted apps reject requests without a browser-like User-Agent.
-const REQUEST_HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (compatible; MuHub icon resolver)',
-  Accept: 'text/html,application/xhtml+xml,image/avif,image/webp,image/*,*/*;q=0.8',
-};
 // Tried after the site's own icons, for sites behind bot protection (e.g. Cloudflare challenges server IPs).
 // Both answer unknown domains with 404, so a generic globe is never mistaken for a logo.
 // NOTE: these services learn the hostnames of saved sites; remove them to keep lookups private.
@@ -29,26 +24,6 @@ const ATTRIBUTE_PATTERN = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g;
 
 /** @type {Map<string, { expiresAt: number, icon: Promise<{ body: Buffer, contentType: string } | null> }>} */
 const iconCache = new Map();
-
-async function fetchWithTimeout(url) {
-  return fetch(url, { headers: REQUEST_HEADERS, redirect: 'follow', signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
-}
-
-/** Reads at most `maxBytes`; resolves null when the body is larger. */
-async function readBodyWithin(response, maxBytes) {
-  if (!response.body) return Buffer.alloc(0);
-  const chunks = [];
-  let size = 0;
-  for await (const chunk of response.body) {
-    size += chunk.length;
-    if (size > maxBytes) {
-      await response.body.cancel().catch(() => {});
-      return null;
-    }
-    chunks.push(chunk);
-  }
-  return Buffer.concat(chunks);
-}
 
 /**
  * Reads the page only up to `</head>`, where icon links live; homepages like GitHub's run to megabytes,
@@ -107,7 +82,7 @@ function listIconCandidates(html, pageUrl) {
 
 async function fetchPageHtml(siteUrl) {
   try {
-    const response = await fetchWithTimeout(siteUrl);
+    const response = await fetchRemote(siteUrl);
     const contentType = response.headers.get('content-type') ?? '';
     if (!response.ok || !contentType.includes('html')) {
       await response.body?.cancel().catch(() => {});
@@ -121,26 +96,10 @@ async function fetchPageHtml(siteUrl) {
   }
 }
 
-/** SPAs answer unknown paths with index.html, so the Content-Type is the only proof of an image. */
-async function fetchIcon(iconUrl) {
-  try {
-    const response = await fetchWithTimeout(iconUrl);
-    const contentType = response.headers.get('content-type')?.split(';')[0].trim().toLowerCase() ?? '';
-    if (!response.ok || !contentType.startsWith('image/')) {
-      await response.body?.cancel().catch(() => {});
-      return null;
-    }
-    const body = await readBodyWithin(response, MAX_ICON_BYTES);
-    return body && body.length > 0 ? { body, contentType } : null;
-  } catch {
-    return null;
-  }
-}
-
 async function resolveIcon(siteUrl) {
   const { html, pageUrl } = await fetchPageHtml(siteUrl);
   for (const iconUrl of listIconCandidates(html, pageUrl)) {
-    const icon = await fetchIcon(iconUrl);
+    const icon = await fetchRemoteImage(iconUrl, MAX_ICON_BYTES);
     if (icon) {
       log('info', 'SiteIcon', 'Icon resolved', { url: siteUrl, icon: iconUrl, size: icon.body.length });
       return icon;

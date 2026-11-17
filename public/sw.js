@@ -45,7 +45,7 @@ async function networkFirst(request, cacheKey = request) {
 self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
-  // Writes must reach the server, and cross-origin requests (Google Fonts) keep browser defaults.
+  // Writes must reach the server; everything else the app loads is same-origin.
   if (request.method !== 'GET' || url.origin !== self.location.origin) return;
 
   // Every client route renders from the same index.html, so one cached shell covers them all.

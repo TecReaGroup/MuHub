@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 
 const MAX_JSON_BODY_BYTES = 64 * 1024;
+const MAX_URL_PARAM_LENGTH = 2048;
 
 const JSON_HEADERS = {
   'Content-Type': 'application/json; charset=utf-8',
@@ -42,6 +43,31 @@ export function sendRevalidatableJson(request, response, value) {
     return;
   }
   response.writeHead(200, { ...JSON_HEADERS, ...cacheHeaders });
+  response.end(body);
+}
+
+/** Reads the `url` query parameter as an absolute http(s) URL, or throws HttpError(400). */
+export function readWebUrlParam(url) {
+  const rawUrl = url.searchParams.get('url') ?? '';
+  if (rawUrl.length > MAX_URL_PARAM_LENGTH) throw new HttpError(400, 'URL too long');
+  try {
+    const webUrl = new URL(rawUrl);
+    if (webUrl.protocol === 'http:' || webUrl.protocol === 'https:') return webUrl.href;
+  } catch {
+    // Falls through to the rejection below.
+  }
+  throw new HttpError(400, 'Invalid URL');
+}
+
+/** Relays a third-party image from our origin; its SVG must never run scripts, even when opened directly. */
+export function sendRemoteImage(response, { body, contentType }, maxAgeSeconds) {
+  response.writeHead(200, {
+    'Content-Type': contentType,
+    'Content-Length': body.length,
+    'Cache-Control': `private, max-age=${maxAgeSeconds}`,
+    'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+    'X-Content-Type-Options': 'nosniff',
+  });
   response.end(body);
 }
 

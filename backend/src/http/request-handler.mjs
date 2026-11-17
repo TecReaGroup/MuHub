@@ -3,6 +3,7 @@ import { extname } from 'node:path';
 import { log, serializeError } from '../infrastructure/logger.mjs';
 import { hasAccess } from '../modules/auth/access-session.mjs';
 import { routeAuthRequest } from '../modules/auth/auth-route.mjs';
+import { routeDiagramImageRequest } from '../modules/diagram/diagram-image-route.mjs';
 import { routeDiagramRequest } from '../modules/diagram/diagram-route.mjs';
 import { routeSiteIconRequest } from '../modules/site/site-icon-route.mjs';
 import { routeSiteRequest } from '../modules/site/site-route.mjs';
@@ -26,6 +27,7 @@ async function routeRequest(request, response, url) {
   }
 
   if (await routeSiteIconRequest(request, response, url)) return;
+  if (await routeDiagramImageRequest(request, response, url)) return;
 
   for (const routeCollectionRequest of COLLECTION_ROUTES) {
     if (await routeCollectionRequest(request, response, url)) return;

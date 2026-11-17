@@ -16,6 +16,13 @@ export const EMPTY_DIAGRAM_DRAFT: DiagramDraft = { title: '', imageUrl: '', desc
 
 export const diagramCollection = createCollectionStore<Diagram, DiagramDraft>(API_ENDPOINT.diagram, 'Diagram', prependItem);
 
+/** Browser-facing src: same-origin paths load directly, anything else goes through the backend proxy. */
+export function diagramImageSrc(imageUrl: string): string {
+  // "//host" is protocol-relative, i.e. another origin, so only a single leading slash is same-origin.
+  const isSameOriginPath = imageUrl.startsWith('/') && !imageUrl.startsWith('//');
+  return isSameOriginPath ? imageUrl : `${API_ENDPOINT.diagramImage}?url=${encodeURIComponent(imageUrl)}`;
+}
+
 export function toDiagramDraft({ title, imageUrl, description }: Diagram): DiagramDraft {
   return { title, imageUrl, description };
 }
