@@ -137,7 +137,9 @@
       height: 0;
     }
 
+    /* Rounded containers set --scrollbar-inset to their radius so the thumb stays clear of the corners. */
     &::-webkit-scrollbar-track {
+      margin-block: var(--scrollbar-inset, 0px);
       background: transparent;
     }
 

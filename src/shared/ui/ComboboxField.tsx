@@ -1,8 +1,12 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { INPUT_CLASS, MENU_ITEM_CLASS, MENU_SURFACE_CLASS } from './control-class';
 import { FormField } from './FormField';
 import { Icon } from './Icon';
 import { useScrollbar } from './use-scrollbar';
+
+const MAX_VISIBLE_OPTIONS = 4;
+const MENU_GAP = 6;
+const VIEWPORT_MARGIN = 8;
 
 interface ComboboxFieldProps {
   label: string;
@@ -24,8 +28,7 @@ export function ComboboxField({ label, value, options, onChange, placeholder, re
   const [expanded, setExpanded] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [query, setQuery] = useState('');
-  const [menuStyle, setMenuStyle] = useState<CSSProperties>();
-  const [listStyle, setListStyle] = useState<CSSProperties>();
+  const menuRef = useRef<HTMLUListElement>(null);
   const scrollbar = useScrollbar();
   const matchingOptions = options.filter(option => option.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
   const listVisible = expanded && matchingOptions.length > 0;
@@ -53,23 +56,34 @@ export function ComboboxField({ label, value, options, onChange, placeholder, re
   useLayoutEffect(() => {
     if (!listVisible) return;
     const input = inputRef.current!;
+    const menu = menuRef.current!;
     const viewport = window.visualViewport;
+    // Top layer, so the menu neither scrolls nor is clipped by an enclosing modal <dialog>.
+    // Set imperatively: React 18 does not know the `popover` attribute.
+    menu.setAttribute('popover', 'manual');
+    if (!menu.matches(':popover-open')) menu.showPopover();
+    const menuBox = getComputedStyle(menu);
+    const menuChrome = ['paddingTop', 'paddingBottom', 'borderTopWidth', 'borderBottomWidth'] as const;
+    // Row height differs between pointer types, so measure it rather than hard-coding a pixel cap.
+    const menuMaxHeight = (menu.firstElementChild as HTMLElement).offsetHeight * MAX_VISIBLE_OPTIONS
+      + menuChrome.reduce((sum, side) => sum + parseFloat(menuBox[side]), 0);
     const updatePlacement = () => {
-      if (!window.matchMedia('(width < 48rem)').matches) {
-        setMenuStyle(undefined);
-        setListStyle(undefined);
-        return;
-      }
       const anchor = input.getBoundingClientRect();
-      const dialog = input.closest('dialog')?.getBoundingClientRect();
-      const visibleTop = Math.max(viewport?.offsetTop ?? 0, dialog?.top ?? 0);
-      const visibleBottom = Math.min((viewport?.offsetTop ?? 0) + (viewport?.height ?? window.innerHeight), dialog?.bottom ?? window.innerHeight);
-      // Keep the mobile menu above its input while the keyboard animates.
-      const availableHeight = Math.max(0, Math.min(anchor.top, visibleBottom) - visibleTop - 8);
-      const menu = document.getElementById(listId)!.parentElement!;
-      const menuPadding = parseFloat(getComputedStyle(menu).paddingTop) + parseFloat(getComputedStyle(menu).paddingBottom);
-      setMenuStyle({ top: 'auto', bottom: '100%', marginTop: 0, marginBottom: 8 });
-      setListStyle({ maxHeight: Math.max(0, Math.min(160, availableHeight - menuPadding - 2)) });
+      const visibleTop = (viewport?.offsetTop ?? 0) + VIEWPORT_MARGIN;
+      const visibleBottom = (viewport?.offsetTop ?? 0) + (viewport?.height ?? window.innerHeight) - VIEWPORT_MARGIN;
+      const spaceAbove = anchor.top - MENU_GAP - visibleTop;
+      const spaceBelow = visibleBottom - anchor.bottom - MENU_GAP;
+      const neededHeight = Math.min(menuMaxHeight, menu.scrollHeight);
+      // Phones always open upward: the keyboard animating in would otherwise cover a menu below.
+      const opensUpward = window.matchMedia('(width < 48rem)').matches || (spaceBelow < neededHeight && spaceAbove > spaceBelow);
+      const maxHeight = Math.max(0, Math.min(menuMaxHeight, opensUpward ? spaceAbove : spaceBelow));
+      Object.assign(menu.style, {
+        left: `${anchor.left}px`,
+        width: `${anchor.width}px`,
+        maxHeight: `${maxHeight}px`,
+        top: opensUpward ? 'auto' : `${anchor.bottom + MENU_GAP}px`,
+        bottom: opensUpward ? `${window.innerHeight - anchor.top + MENU_GAP}px` : 'auto',
+      });
     };
     updatePlacement();
     viewport?.addEventListener('resize', updatePlacement);
@@ -82,7 +96,7 @@ export function ComboboxField({ label, value, options, onChange, placeholder, re
       window.removeEventListener('resize', updatePlacement);
       document.removeEventListener('scroll', updatePlacement, true);
     };
-  }, [listVisible, listId]);
+  }, [listVisible, matchingOptions.length]);
 
   function selectOption(option: string) {
     onChange(option);
@@ -152,7 +166,7 @@ export function ComboboxField({ label, value, options, onChange, placeholder, re
             aria-label={label}
             aria-expanded={listVisible}
             aria-controls={listVisible ? listId : undefined}
-            className="absolute inset-y-0 right-0 flex w-10 cursor-pointer items-center justify-center rounded-control text-fg-muted hover:text-fg"
+            className="absolute inset-y-0 right-1.5 my-auto flex size-7 cursor-pointer items-center justify-center rounded-tight text-fg-muted transition-colors hover:bg-hover hover:text-fg"
             onPointerDown={event => {
               if (event.button !== 0) return;
               event.preventDefault();
@@ -167,25 +181,23 @@ export function ComboboxField({ label, value, options, onChange, placeholder, re
           </button>
         )}
         {listVisible && (
-          <div style={menuStyle} className={`${MENU_SURFACE_CLASS} absolute inset-x-0 top-full z-40 mt-2 overflow-hidden py-[var(--radius-card)]`}>
-            <ul {...scrollbar} style={listStyle} id={listId} role="listbox" aria-label={label} className="scrollbar-subtle max-h-40 overflow-y-auto overscroll-contain px-1.5">
-              {matchingOptions.map((option, index) => (
-                <li
-                  key={option}
-                  ref={activeIndex === index ? activeOptionRef : undefined}
-                  id={`${listId}-${index}`}
-                  role="option"
-                  aria-selected={value === option}
-                  className={`${MENU_ITEM_CLASS} ${activeIndex === index ? 'bg-hover' : ''}`}
-                  onMouseDown={event => event.preventDefault()}
-                  onClick={() => selectOption(option)}
-                >
-                  <span className="min-w-0 truncate" title={option}>{option}</span>
-                  <Icon name="check" className={`size-4 shrink-0 text-accent ${value === option ? '' : 'invisible'}`} />
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ul ref={menuRef} {...scrollbar} id={listId} role="listbox" aria-label={label} className={`${MENU_SURFACE_CLASS} scrollbar-subtle fixed m-0 animate-fade-in overflow-y-auto overscroll-contain p-1.5 text-fg`}>
+            {matchingOptions.map((option, index) => (
+              <li
+                key={option}
+                ref={activeIndex === index ? activeOptionRef : undefined}
+                id={`${listId}-${index}`}
+                role="option"
+                aria-selected={value === option}
+                className={`${MENU_ITEM_CLASS} ${activeIndex === index ? 'bg-hover' : ''}`}
+                onMouseDown={event => event.preventDefault()}
+                onClick={() => selectOption(option)}
+              >
+                <span className="min-w-0 truncate" title={option}>{option}</span>
+                <Icon name="check" className={`size-4 shrink-0 text-accent ${value === option ? '' : 'invisible'}`} />
+              </li>
+            ))}
+          </ul>
         )}
       </div>
       </FormField>

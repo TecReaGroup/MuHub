@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_ENDPOINT } from '../../shared/api/api-endpoint';
 import { siteMonogram } from './site';
 
 interface SiteLogoProps {
@@ -6,25 +7,24 @@ interface SiteLogoProps {
   title: string;
 }
 
-/** Uses the site's favicon, falling back to its monogram on load failure. */
+/** Shows the site's best declared icon (resolved by the backend), falling back to its monogram. */
 export function SiteLogo({ url, title }: SiteLogoProps) {
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
-  const faviconUrl = new URL('/favicon.ico', url).href;
+  const iconUrl = `${API_ENDPOINT.siteIcon}?url=${encodeURIComponent(url)}`;
 
   return (
     <div aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-control bg-surface-sunken text-xs font-semibold text-fg-muted">
-      {failedUrl === faviconUrl ? siteMonogram(title) : (
+      {failedUrl === iconUrl ? siteMonogram(title) : (
         <img
-          key={faviconUrl}
-          src={faviconUrl}
+          key={iconUrl}
+          src={iconUrl}
           alt=""
-          width={24}
-          height={24}
+          width={32}
+          height={32}
           loading="lazy"
           decoding="async"
-          referrerPolicy="no-referrer"
-          className="size-6 object-contain"
-          onError={() => setFailedUrl(faviconUrl)}
+          className="size-8 rounded-tight object-contain"
+          onError={() => setFailedUrl(iconUrl)}
         />
       )}
     </div>
