@@ -2,7 +2,7 @@ import { useI18n } from '../../shared/i18n/locale';
 import { ItemActions } from '../../shared/ui/ItemActions';
 import { SkeletonBar } from '../../shared/ui/Placeholder';
 import { TEXT_ROLE } from '../../shared/ui/text-class';
-import type { Diagram } from './diagram';
+import { diagramRevision, type Diagram } from './diagram';
 import { DiagramImage } from './DiagramImage';
 
 // Media tile: the framed preview is the card; title and actions sit below it on the canvas.
@@ -29,6 +29,7 @@ export function DiagramCard({ diagram, onPreview, onEdit, onRemove }: DiagramCar
       >
         <DiagramImage
           src={diagram.imageUrl}
+          revision={diagramRevision(diagram)}
           alt={diagram.title}
           className={`${PREVIEW_HEIGHT_CLASS} w-full object-contain transition-transform duration-long group-hover:scale-[1.02]`}
         />

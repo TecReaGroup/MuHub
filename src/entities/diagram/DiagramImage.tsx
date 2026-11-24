@@ -4,17 +4,19 @@ import { diagramImageSrc } from './diagram';
 
 interface DiagramImageProps {
   src: string;
+  /** See `diagramImageSrc`. */
+  revision: string;
   alt: string;
   className?: string;
   style?: CSSProperties;
 }
 
 /** Place on a `bg-diagram-canvas` surface: the image is pinned to its light palette. */
-export function DiagramImage({ src, alt, className = '', style }: DiagramImageProps) {
+export function DiagramImage({ src, revision, alt, className = '', style }: DiagramImageProps) {
   const { text } = useI18n();
   const [hasFailed, setHasFailed] = useState(false);
 
-  useEffect(() => setHasFailed(false), [src]);
+  useEffect(() => setHasFailed(false), [src, revision]);
 
   if (hasFailed) {
     return <div className="py-16 text-center text-xs text-fg-subtle">{text['diagram.imageFailed']}</div>;
@@ -23,7 +25,7 @@ export function DiagramImage({ src, alt, className = '', style }: DiagramImagePr
     // draw.io exports use `color-scheme: light dark` + light-dark(), which follow the OS theme.
     // Pinning the img to light renders the authored palette on the white canvas behind it.
     <img
-      src={diagramImageSrc(src)}
+      src={diagramImageSrc(src, revision)}
       alt={alt}
       loading="lazy"
       draggable={false}

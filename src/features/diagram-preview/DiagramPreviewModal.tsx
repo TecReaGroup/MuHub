@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { diagramImageSrc, type Diagram } from '../../entities/diagram/diagram';
+import { diagramImageSrc, diagramRevision, type Diagram } from '../../entities/diagram/diagram';
 import { DiagramImage } from '../../entities/diagram/DiagramImage';
 import { useI18n } from '../../shared/i18n/locale';
 import { IconButton, IconLink } from '../../shared/ui/Button';
@@ -73,7 +73,7 @@ export function DiagramPreviewModal({ open, diagram, onClose }: DiagramPreviewMo
         <h2 id={titleId} className={`min-w-0 truncate ${TEXT_ROLE.dialogTitle}`}>{diagram?.title}</h2>
         <div className="flex shrink-0 items-center gap-0.5">
           {diagram && (
-            <IconLink label={text['diagram.openOriginal']} href={diagramImageSrc(diagram.imageUrl)}>
+            <IconLink label={text['diagram.openOriginal']} href={diagramImageSrc(diagram.imageUrl, diagramRevision(diagram))}>
               <Icon name="arrowUpRight" />
             </IconLink>
           )}
@@ -112,7 +112,7 @@ export function DiagramPreviewModal({ open, diagram, onClose }: DiagramPreviewMo
               className="h-full w-full origin-top-left p-6"
               style={{ transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})` }}
             >
-              <DiagramImage src={diagram.imageUrl} alt={diagram.title} className="h-full w-full object-contain" />
+              <DiagramImage src={diagram.imageUrl} revision={diagramRevision(diagram)} alt={diagram.title} className="h-full w-full object-contain" />
             </div>
           )}
         </div>

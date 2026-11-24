@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import type { DiagramDraft } from '../../entities/diagram/diagram';
 import { DiagramImage } from '../../entities/diagram/DiagramImage';
 import { useI18n } from '../../shared/i18n/locale';
@@ -18,6 +19,8 @@ export function DiagramFormModal({ open, heading, initialDraft, onSubmit, onClos
   const { text } = useI18n();
   const { draft, bindField, isSaving, submit } = useDraftForm(open, initialDraft, onSubmit);
   const imageUrl = draft.imageUrl.trim();
+  // `open` and `imageUrl` are deliberate triggers: each open or pasted URL re-fetches, since editing exists to pick up a re-export.
+  const previewRevision = useMemo(() => String(Date.now()), [open, imageUrl]);
 
   return (
     <FormDialog open={open} title={heading} isSaving={isSaving} onSubmit={submit} onClose={onClose}>
@@ -29,7 +32,7 @@ export function DiagramFormModal({ open, heading, initialDraft, onSubmit, onClos
         />
         {imageUrl && (
           <div className="rounded-control border border-line bg-diagram-canvas p-3">
-            <DiagramImage src={imageUrl} alt={text['diagram.imagePreview']} className="max-h-40 w-full object-contain" />
+            <DiagramImage src={imageUrl} revision={previewRevision} alt={text['diagram.imagePreview']} className="max-h-40 w-full object-contain" />
           </div>
         )}
         <TextField label={text['common.title']} required maxLength={80} placeholder={text['diagram.titlePlaceholder']} {...bindField('title')} />

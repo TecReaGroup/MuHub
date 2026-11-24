@@ -77,7 +77,7 @@ export function createJsonCollectionStore({ filePath, seedDrafts, moduleName, in
       return mutate(items => {
         const current = items.find(item => item.id === id);
         if (!current) return { nextItems: items, outcome: null };
-        const updated = { ...current, ...draft };
+        const updated = { ...current, ...draft, updatedAt: new Date().toISOString() };
         return { nextItems: items.map(item => (item.id === id ? updated : item)), outcome: updated };
       });
     },
