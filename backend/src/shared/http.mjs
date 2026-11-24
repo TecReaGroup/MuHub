@@ -30,11 +30,10 @@ export function matchesEtag(request, etag) {
 }
 
 /**
- * Sends a 200 JSON response the browser may cache but must revalidate, answering 304 when unchanged.
+ * Sends a 200 the browser may cache but must revalidate, answering 304 when unchanged.
  * The ETag hashes the body, so it stays valid across restarts, unlike an in-memory revision counter.
  */
-export function sendRevalidatableJson(request, response, value) {
-  const body = JSON.stringify(value);
+function sendRevalidatable(request, response, body, headers) {
   const etag = `"${createHash('sha1').update(body).digest('base64url')}"`;
   const cacheHeaders = { 'Cache-Control': 'no-cache', ETag: etag };
   if (matchesEtag(request, etag)) {
@@ -42,8 +41,12 @@ export function sendRevalidatableJson(request, response, value) {
     response.end();
     return;
   }
-  response.writeHead(200, { ...JSON_HEADERS, ...cacheHeaders });
+  response.writeHead(200, { ...headers, ...cacheHeaders });
   response.end(body);
+}
+
+export function sendRevalidatableJson(request, response, value) {
+  sendRevalidatable(request, response, JSON.stringify(value), JSON_HEADERS);
 }
 
 /** Reads the `url` query parameter as an absolute http(s) URL, or throws HttpError(400). */
@@ -59,16 +62,26 @@ export function readWebUrlParam(url) {
   throw new HttpError(400, 'Invalid URL');
 }
 
-/** Relays a third-party image from our origin; its SVG must never run scripts, even when opened directly. */
+// A relayed SVG must never run scripts, even when opened directly.
+const REMOTE_IMAGE_SECURITY_HEADERS = {
+  'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+  'X-Content-Type-Options': 'nosniff',
+};
+
+/** Relays a third-party image from our origin, letting the browser reuse it for `maxAgeSeconds`. */
 export function sendRemoteImage(response, { body, contentType }, maxAgeSeconds) {
   response.writeHead(200, {
+    ...REMOTE_IMAGE_SECURITY_HEADERS,
     'Content-Type': contentType,
     'Content-Length': body.length,
     'Cache-Control': `private, max-age=${maxAgeSeconds}`,
-    'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; sandbox",
-    'X-Content-Type-Options': 'nosniff',
   });
   response.end(body);
+}
+
+/** Relays a third-party image that may change at the same URL, so every view revalidates against a fresh upstream copy. */
+export function sendRevalidatableRemoteImage(request, response, { body, contentType }) {
+  sendRevalidatable(request, response, body, { ...REMOTE_IMAGE_SECURITY_HEADERS, 'Content-Type': contentType });
 }
 
 export function sendNoContent(response) {
